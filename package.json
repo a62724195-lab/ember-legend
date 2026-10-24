@@ -1,0 +1,43 @@
+{
+  "name": "ember-legend",
+  "productName": "أسطورة الجمر",
+  "version": "1.0.0",
+  "description": "أسطورة الجمر - لعبة أكشن وقصة",
+  "main": "electron/main.js",
+  "author": "Ember Legend",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "serve": "npx http-server www -p 8080 -c-1",
+    "dist:win": "electron-builder --win --publish never"
+  },
+  "devDependencies": {
+    "@capacitor/android": "^6.1.2",
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^6.1.2",
+    "@capacitor/core": "^6.1.2",
+    "electron": "^31.7.7",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.emberlegend.game",
+    "productName": "Ember Legend",
+    "directories": { "output": "dist", "buildResources": "build" },
+    "files": ["electron/**/*", "www/**/*", "build/icon.png", "package.json"],
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        { "target": "nsis", "arch": ["x64"] },
+        { "target": "portable", "arch": ["x64"] }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "shortcutName": "Ember Legend",
+      "artifactName": "Ember-Legend-Setup-${version}.exe"
+    },
+    "portable": { "artifactName": "Ember-Legend-Portable-${version}.exe" }
+  }
+}

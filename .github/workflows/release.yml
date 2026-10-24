@@ -1,0 +1,72 @@
+# يبني نسخة ويندوز (.exe) ونسخة أندرويد (.apk) ويرفعها في صفحة Releases
+# التشغيل: ادفع وسم مثل v1.0.0   أو   Actions ← Build release ← Run workflow
+name: Build release (Windows + Android)
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install
+      - run: npm run dist:win
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: |
+            dist/Ember-Legend-Setup-*.exe
+            dist/Ember-Legend-Portable-*.exe
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - run: npm install
+      - name: Create Android project
+        run: npx cap add android
+      - name: Generate icons
+        run: npx capacitor-assets generate --android
+      - name: Fullscreen theme
+        run: |
+          f=android/app/src/main/res/values/styles.xml
+          sed -i 's#<style name="AppTheme.NoActionBar"[^>]*>#&\n        <item name="android:windowFullscreen">true</item>\n        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>#' "$f"
+          cat "$f"
+      - name: Sync web files
+        run: npx cap sync android
+      - name: Build APK
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
+      - name: Rename
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk Ember-Legend-Android.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android
+          path: Ember-Legend-Android.apk
+  publish:
+    needs: [windows, android]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: out
+          merge-multiple: true
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: out/*
+          generate_release_notes: true
