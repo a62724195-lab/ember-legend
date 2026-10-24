@@ -33,7 +33,7 @@
 ## هيكل المشروع
 
 ```
-www/            اللعبة نفسها (index.html) + manifest + sw.js + icons
+www/            اللعبة نفسها (index.html) + الأيقونات
 electron/       غلاف ويندوز
 build/          أيقونة ويندوز
 assets/         أيقونة أندرويد
