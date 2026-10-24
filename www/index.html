@@ -5284,7 +5284,7 @@ const INTRO_IMG={badge:'data:image/webp;base64,UklGRqR1AQBXRUJQVlA4IJh1AQCQoAOdA
    المقدمة: شعار الاستوديو ثم مشهد سينمائي ثم الشاشة الرئيسية
    لتغيير الاسم: عدّل INTRO_CFG
    ===================================================================== */
-const INTRO_CFG={studio:'ستوديو التاج',tag:'تقدّم',credit1:'فكرة وإخراج',credit2:'برمجة',credit2v:'Claude · Anthropic'};
+const INTRO_CFG={studio:'شربكلي',tag:'تقدّم',credit1:'فكرة وإخراج',credit2:'برمجة',credit2v:'Claude · Anthropic',yt:'يوتيوب · <bdi dir="ltr">@ASk-o7i3v</bdi>'};
 const INTR={on:0,ph:'',t:0,last:0,raf:0,cv:null,cx:null,ps:[],au:null,fired:{},stars:[],clouds:[],lastCap:-1,flash:0,done:0};
 (function(){
 const css=document.createElement('style');css.textContent=`
@@ -5318,7 +5318,7 @@ const css=document.createElement('style');css.textContent=`
 const d=document.createElement('div');d.id='intro';d.hidden=true;
 d.innerHTML=`<canvas id="inCv" width="1280" height="720"></canvas>
 <div class="st bd" id="inBd"><img alt=""><div><h2></h2></div><p></p></div>
-<div class="st mc" id="inMc"><img alt=""><p class="a"></p><p class="b"></p></div>
+<div class="st mc" id="inMc"><img alt=""><p class="a"></p><p class="b"></p><p class="c"></p></div>
 <div class="bar t"></div><div class="bar b"></div><div class="cap" id="inCap"></div>
 <div class="ttl" id="inTtl"><h1>أسطورة الجمر</h1><p>جمر الأعماق</p><i>المس الشاشة للبدء</i></div>
 <button class="skip" id="inSkip" type="button">تخطي ›</button>`;
@@ -5429,7 +5429,7 @@ function inTick(ts){if(!INTR.on)return;const dt=Math.min(.05,(ts-INTR.last)/1000
   INTR.raf=requestAnimationFrame(inTick)}
 function inStart(){const el=$('#intro');INTR.on=1;INTR.ph='';INTR.t=0;INTR.fired={};INTR.done=0;INTR.fin=0;INTR.go=0;el.hidden=false;el.classList.remove('out','cn','dead');
   $i('#inBd img').src=INTRO_IMG.badge;$i('#inMc img').src=INTRO_IMG.mascot;$i('#inBd h2').textContent=INTRO_CFG.studio;$i('#inBd p').textContent=INTRO_CFG.tag;
-  $i('#inMc .a').innerHTML=INTRO_CFG.credit1+' · <b>'+INTRO_CFG.studio+'</b>';$i('#inMc .b').innerHTML=INTRO_CFG.credit2+' · <b>'+INTRO_CFG.credit2v+'</b>';
+  $i('#inMc .a').innerHTML=INTRO_CFG.credit1+' · <b>'+INTRO_CFG.studio+'</b>';$i('#inMc .c').innerHTML=INTRO_CFG.yt;$i('#inMc .b').innerHTML=INTRO_CFG.credit2+' · <b>'+INTRO_CFG.credit2v+'</b>';
   inAu();if(INTR.au&&INTR.au.A.state==='suspended')INTR.au.A.resume().catch(()=>{});
   INTR.cv=$i('#inCv');INTR.cx=INTR.cv.getContext('2d');inSeed();INTR.ph='studio';INTR.last=performance.now();INTR.raf=requestAnimationFrame(inTick)}
 function inFinish(){if(INTR.fin)return;INTR.fin=1;INTR.on=0;cancelAnimationFrame(INTR.raf);inDroneStop(.6);const el=$('#intro');el.classList.add('out');
@@ -5445,6 +5445,55 @@ function inKey(e){if(!INTR.on)return;e.stopPropagation();e.preventDefault();if(e
   addEventListener('keydown',inKey,true);
   window.__intro={INTR,inStart,inNext,inFinish};
   inStart()})();
+/* =====================================================================
+   التحديث من داخل اللعبة: يفحص آخر إصدار على GitHub ويعرض زر "حدّث الآن"
+   ===================================================================== */
+const APP_VERSION='1.1.0';
+const UPD={repo:'a62724195-lab/ember-legend',info:null,busy:0,dismissed:0,checking:0,pct:0,err:''};
+(function(){
+const st=document.createElement('style');st.textContent=`
+#updBn{position:fixed;top:max(10px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:60;width:min(94vw,520px);direction:rtl;background:linear-gradient(180deg,rgba(60,30,12,.97),rgba(22,11,6,.98));border:1px solid #ff9a40;border-radius:14px;padding:10px 14px;box-shadow:0 8px 30px #000c,0 0 24px #ff7a2f55;color:#f6e3c6;display:grid;gap:8px;font-family:inherit}
+#updBn[hidden]{display:none}
+#updBn b{color:#ffd9a0;font-size:15px}#updBn small{color:#d9b88a;font-size:12px;display:block;margin-top:2px}
+#updBn .rw{display:flex;gap:8px}
+#updBn button{font:inherit;cursor:pointer;flex:1;background:rgba(50,28,16,.95);border:1px solid #6a3c1c;color:#f2dcc0;border-radius:10px;padding:9px 12px;font-size:14px}
+#updBn button.ok{background:linear-gradient(90deg,#ff8a3a,#ffc070);color:#2a1206;border-color:#ffd9a0;font-weight:700}
+#updBn .pb{height:8px;border-radius:5px;background:#000a;overflow:hidden;display:none}#updBn .pb i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ff7a2f,#ffd27a);transition:width .25s}
+#updBn.bz .pb{display:block}#updBn.bz .rw{display:none}
+#updVer{position:fixed;bottom:6px;right:10px;z-index:5;font-size:11px;color:#a69784aa;pointer-events:none}
+`;document.head.appendChild(st);
+const d=document.createElement('div');d.id='updBn';d.hidden=true;d.innerHTML='<div><b id="ubT"></b><small id="ubS"></small></div><div class="pb"><i id="ubP"></i></div><div class="rw"><button id="ubL" type="button">لاحقاً</button><button id="ubGo" class="ok" type="button">حدّث الآن</button></div>';document.body.appendChild(d);
+const v=document.createElement('div');v.id='updVer';v.textContent='v'+APP_VERSION;document.body.appendChild(v)})();
+function updCmp(a,b){const x=String(a).replace(/^v/,'').split('.').map(Number),y=String(b).replace(/^v/,'').split('.').map(Number);for(let i=0;i<3;i++){const p=x[i]||0,q=y[i]||0;if(p!==q)return p>q?1:-1}return 0}
+function updPlat(){if(window.emberDesktop)return'desktop';try{if(window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform())return'android'}catch(e){}return'web'}
+async function updCheck(manual){if(UPD.checking||UPD.busy)return;UPD.checking=1;
+  try{const r=await fetch('https://api.github.com/repos/'+UPD.repo+'/releases/latest',{headers:{Accept:'application/vnd.github+json'},cache:'no-store'});if(!r.ok)throw new Error('http '+r.status);const j=await r.json(),tag=String(j.tag_name||'').replace(/^v/,'');
+    if(tag&&updCmp(tag,APP_VERSION)>0){UPD.info={tag,html:j.html_url,assets:(j.assets||[]).map(a=>({name:a.name,url:a.browser_download_url})),notes:String(j.body||'').split('\n')[0].slice(0,90)};UPD.dismissed=0;updShow()}
+    else{UPD.info=null;if(manual)toast('أنت على آخر نسخة (v'+APP_VERSION+')','#9fe39f')}}
+  catch(e){if(manual)toast('ما قدرت أفحص التحديث. تأكد من الإنترنت','#ff9a8a')}
+  UPD.checking=0}
+function updShow(){const b=$('#updBn'),i=UPD.info;if(!i){b.hidden=true;return}$('#ubT').textContent='تحديث جديد متوفر: v'+i.tag;$('#ubS').textContent=UPD.err||('نسختك v'+APP_VERSION+(i.notes?' · '+i.notes:''));b.classList.toggle('bz',!!UPD.busy);b.hidden=!!UPD.dismissed&&!UPD.busy}
+function updVisible(){const intro=document.getElementById('intro'),t=document.getElementById('title');return(!intro||intro.hidden)&&t&&!t.hidden}
+async function updGo(){const i=UPD.info;if(!i||UPD.busy)return;const pl=updPlat();UPD.err='';
+  const pick=re=>i.assets.find(a=>re.test(a.name));
+  if(pl==='desktop'){const port=await window.emberDesktop.portable().catch(()=>false),a=pick(port?/Portable.*\.exe$/i:/Setup.*\.exe$/i)||pick(/\.exe$/i);if(!a){updOpen(i.html);return}
+    UPD.busy=1;$('#ubT').textContent='جاري تحميل التحديث...';$('#ubP').style.width='2%';updShow();
+    window.emberDesktop.onProgress(p=>{$('#ubP').style.width=Math.max(2,Math.round(p*100))+'%';$('#ubS').textContent=Math.round(p*100)+'%'});
+    try{await window.emberDesktop.update(a.url,a.name);$('#ubT').textContent='يفتح المثبّت... اللعبة راح تُغلق';$('#ubS').textContent='كمّل خطوات التثبيت'}catch(e){UPD.busy=0;UPD.err='فشل التحميل. جرّب مرة ثانية';updShow()}return}
+  if(pl==='android'){const a=pick(/\.apk$/i);updOpen(a?a.url:i.html);toast('بعد التنزيل افتح الملف واضغط "تثبيت"','#ffd9a0');return}
+  updOpen(i.html)}
+const YT_URL='https://www.youtube.com/@ASk-o7i3v';
+function updOpen(url){try{if(updPlat()==='android'){const B=Capacitor.registerPlugin('Browser');B.open({url});return}}catch(e){}window.open(url,'_blank')}
+$('#ubGo').addEventListener('click',updGo);$('#ubL').addEventListener('click',()=>{UPD.dismissed=1;updShow()});
+setInterval(()=>{const b=$('#updBn');if(!UPD.info){if(!b.hidden)b.hidden=true;return}const vis=updVisible();if(!vis&&!b.hidden)b.hidden=true;else if(vis&&b.hidden&&(!UPD.dismissed||UPD.busy))updShow()},500);
+setInterval(()=>{if(updVisible()&&!UPD.busy)updCheck(false)},30*60*1000);
+(function(){const tryFirst=()=>{if(updVisible()){updCheck(false)}else setTimeout(tryFirst,1500)};setTimeout(tryFirst,2500);
+  const mk=()=>{const b=document.createElement('button');b.type='button';b.className='mbtn';b.textContent='تحقق من التحديث (v'+APP_VERSION+')';b.addEventListener('click',()=>{updCheck(true)});return b};
+  const yt=()=>{const b=document.createElement('button');b.type='button';b.className='mbtn sub';b.innerHTML='قناة شربكلي على يوتيوب <small>ادعم الصانع بزيارة القناة</small>';b.addEventListener('click',()=>updOpen(YT_URL));return b};
+  const tc=document.querySelector('#title .card');if(tc)tc.appendChild(yt());
+  const sc2=$('#setClose');if(sc2&&sc2.parentNode)sc2.parentNode.insertBefore(yt(),sc2);
+  const sc=$('#setClose');if(sc&&sc.parentNode)sc.parentNode.insertBefore(mk(),sc)})();
+window.__upd={UPD,updCheck,updCmp,updGo,updShow};
 })();
 </script>
 </body></html>

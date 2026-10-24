@@ -1,14 +1,23 @@
-# يبني نسخة ويندوز (.exe) ونسخة أندرويد (.apk) ويرفعها في صفحة Releases
-# التشغيل: ادفع وسم مثل v1.0.0   أو   Actions ← Build release ← Run workflow
+# يبني نسخة ويندوز (.exe) ونسخة أندرويد (.apk) وينشرها في Releases.
+# الإصدار يؤخذ من ملف version.txt (غيّره عند كل تحديث عشان اللعبة تعرض زر التحديث).
 name: Build release (Windows + Android)
 on:
-  push:
-    tags: ['v*']
   workflow_dispatch:
 permissions:
   contents: write
+env:
+  KS_PASS: 6c0fcb7a489390d0a445d92b
 jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      v: ${{ steps.v.outputs.v }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: v
+        run: echo "v=$(tr -d ' \r\n' < version.txt)" >> "$GITHUB_OUTPUT"
   windows:
+    needs: version
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -16,6 +25,7 @@ jobs:
         with:
           node-version: 20
       - run: npm install
+      - run: npm version ${{ needs.version.outputs.v }} --no-git-tag-version --allow-same-version
       - run: npm run dist:win
       - uses: actions/upload-artifact@v4
         with:
@@ -24,6 +34,7 @@ jobs:
             dist/Ember-Legend-Setup-*.exe
             dist/Ember-Legend-Portable-*.exe
   android:
+    needs: version
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -39,11 +50,19 @@ jobs:
         run: npx cap add android
       - name: Generate icons
         run: npx capacitor-assets generate --android
-      - name: Fullscreen theme
+      - name: Theme, version, signing
         run: |
           f=android/app/src/main/res/values/styles.xml
           sed -i 's#<style name="AppTheme.NoActionBar"[^>]*>#&\n        <item name="android:windowFullscreen">true</item>\n        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>#' "$f"
-          cat "$f"
+          g=android/app/build.gradle
+          sed -i "s/versionCode 1/versionCode ${{ github.run_number }}/; s/versionName \"1.0\"/versionName \"${{ needs.version.outputs.v }}\"/" "$g"
+          cat >> "$g" <<'GRADLE'
+          android.signingConfigs.debug.storeFile = file("${System.getenv('GITHUB_WORKSPACE')}/signing/ember.keystore")
+          android.signingConfigs.debug.storePassword = System.getenv('KS_PASS')
+          android.signingConfigs.debug.keyAlias = 'ember'
+          android.signingConfigs.debug.keyPassword = System.getenv('KS_PASS')
+          GRADLE
+          grep -n "versionCode\|versionName" "$g"
       - name: Sync web files
         run: npx cap sync android
       - name: Build APK
@@ -58,7 +77,7 @@ jobs:
           name: android
           path: Ember-Legend-Android.apk
   publish:
-    needs: [windows, android]
+    needs: [version, windows, android]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
@@ -67,6 +86,7 @@ jobs:
           merge-multiple: true
       - uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || format('v1.0.{0}', github.run_number) }}
+          tag_name: v${{ needs.version.outputs.v }}
+          name: أسطورة الجمر v${{ needs.version.outputs.v }}
           files: out/*
           generate_release_notes: true

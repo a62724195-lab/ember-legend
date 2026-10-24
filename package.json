@@ -1,7 +1,7 @@
 {
   "name": "ember-legend",
   "productName": "أسطورة الجمر",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "أسطورة الجمر - لعبة أكشن وقصة",
   "main": "electron/main.js",
   "author": "Ember Legend",
@@ -17,18 +17,37 @@
     "@capacitor/cli": "^6.1.2",
     "@capacitor/core": "^6.1.2",
     "electron": "^31.7.7",
-    "electron-builder": "^24.13.3"
+    "electron-builder": "^24.13.3",
+    "@capacitor/browser": "^6.0.2"
   },
   "build": {
     "appId": "com.emberlegend.game",
     "productName": "Ember Legend",
-    "directories": { "output": "dist", "buildResources": "build" },
-    "files": ["electron/**/*", "www/**/*", "build/icon.png", "package.json"],
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "electron/**/*",
+      "www/**/*",
+      "build/icon.png",
+      "package.json"
+    ],
     "win": {
       "icon": "build/icon.ico",
       "target": [
-        { "target": "nsis", "arch": ["x64"] },
-        { "target": "portable", "arch": ["x64"] }
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
       ]
     },
     "nsis": {
@@ -38,6 +57,8 @@
       "shortcutName": "Ember Legend",
       "artifactName": "Ember-Legend-Setup-${version}.exe"
     },
-    "portable": { "artifactName": "Ember-Legend-Portable-${version}.exe" }
+    "portable": {
+      "artifactName": "Ember-Legend-Portable-${version}.exe"
+    }
   }
 }
