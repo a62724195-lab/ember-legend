@@ -3991,7 +3991,7 @@ Object.assign(window.__st,{songStart,songEnd,SG,rcEnter,RC,rcInteract});
    طور القصة: «جمر الأعماق» — HD-2D: قلعة الجمر
    الجمرة بيدك هي نورك وحياتك وسلاحك. تنطفي. والرماد يشتهيها.
    ===================================================================== */
-const EM={lv:0,m:null,x:1.5,y:1.5,a:0,fd:'d',flip:0,E:100,t:0,mv:0,bob:0,cover:0,en:[],seen:null,fp:null,fpT:0,ring:0,cd:0,ck:null,relics:0,fx:[],hbT:0,scT:20,dark:0,boost:0,near:null,shards:0,altars:0,tut:{},ghost:null,hp:null,spT:0,hunt:0,done:0,msgs:0,up:0,flags:{},orbs:[],bs:null,pzDone:{},evSeen:[],endless:0,floor:0,lives:3,eSeed:0};
+const EM={lv:0,m:null,x:1.5,y:1.5,a:0,fd:'d',flip:0,E:100,t:0,mv:0,bob:0,cover:0,en:[],seen:null,fp:null,fpT:0,ring:0,cd:0,ck:null,relics:0,fx:[],hbT:0,scT:20,dark:0,boost:0,near:null,shards:0,altars:0,tut:{},ghost:null,hp:null,spT:0,hunt:0,done:0,msgs:0,up:0,flags:{},orbs:[],bs:null,pzDone:{},evSeen:[],endless:0,floor:0,lives:3,eSeed:0,etype:''};
 const EM_RUNES=['«الجمر لا يموت... ينام.»','«كل من أطفأه الظلام، ما زال يحرسه.»','«النور يجذبهم... والعتمة تخبّيك.»','«ثلاث جمرات، وباب واحد.»','«القلب يفتح عينه ليسمع... فأعطه ما يسمعه.»','«الرماد كان بشرًا يومًا.»'];
 const emSolid=(x,y)=>{const r=EM.m.g[Math.floor(y)];return !r||(r[Math.floor(x)]!=='.'&&r[Math.floor(x)]!=='C')};
 const emOpaque=(x,y)=>{const r=EM.m.g[Math.floor(y)],c=r&&r[Math.floor(x)];return !c||(c!=='.'&&c!=='C'&&c!=='L'&&c!=='G')};
@@ -4003,13 +4003,13 @@ function emLoad(lv,keep){const R=EM;R.lv=lv;if(R.endless){R.floor=lv-10;const b=
   R.hp=m.arena?{hp:5,t:0,open:0}:null;R.bs=m.boss?hdBossInit(m):null;R.pzDone=R.pzDone||{};m.items.forEach(i=>{if(i.k==='puzzle'&&R.pzDone[lv+':'+i.id]){i.solved=1;if(i.flag)R.flags[i.flag]=1}});R.ck={x:R.x,y:R.y,a:R.a};hdBakeFloor(m);HD.cam.x=R.x*HT-W/2;HD.cam.y=R.y*HT-H/2;R.fd=Math.abs(Math.cos(R.a))>.5?'s':Math.sin(R.a)>0?'d':'u';R.flip=Math.cos(R.a)<0?1:0;R.mv=0;
   R.en=m.en.map(e=>({k:e.k,x:e.x,y:e.y,sx:e.x,sy:e.y,st:e.dorm?'dorm':'patrol',wait:0,lost:0,t:Math.random()*5,wp:null,lx:0,ly:0,fz:0,stun:0,away:0,dorm:!!e.dorm}));
   emSaveProg(lv);SA.mood=null;if(SA.n)saMood(EM_TH[m.th].mood)}
-function emSaveProg(lv){const R=EM;if(R.endless)return;store.set('ember_em1',{v:2,lv:lv===undefined?R.lv:lv,relics:R.relics,up:R.up||0,pz:R.pzDone||{}})}
+function emSaveProg(lv){const R=EM;if(R.endless)return;store.set('ember_em1',{v:2,lv:lv===undefined?R.lv:lv,relics:R.relics,up:R.up||0,pz:R.pzDone||{},et:R.etype||''})}
 const emFlareCost=()=>Math.max(14,22-2*(EM.up||0));
 function emStart(fresh,endless){initAudio();const sv=!endless&&!fresh&&store.get('ember_em1');
   ST.flags={};ST.notes=[];ST.mem={};ST.on=true;ST.cin=null;ST.busy=0;ST.wh=[];ST.flash=0;ST.shake=0;ST.heart=0;ST.darkT=0;ST.jump=0;ST._hud='';ST.ec=null;ST.bd=null;ST.snk=0;ST.rcOn=false;ST.songOn=false;ST.emOn=true;
   ST.sc={id:'em',w:1,h:1,g:[[' ']],objs:[],tall:[],bake:null,name:'جمر الأعماق',theme:'cave',dark:1,tint:'#000',spawn:[0,0]};ST.id='em';
   ['#title','#pause','#help','#settings','#coop','#end','#dead','#card','#stJ','#stCh'].forEach(s=>$(s)&&($(s).hidden=true));$('#hud').hidden=true;$('#dlg').hidden=true;$('#cine').hidden=true;
-  document.body.classList.add('story');ch2UI(false);emUI(true);stAmb(true);keys={};state='story';EM.relics=sv?sv.relics||0:0;EM.up=sv?sv.up||0:0;EM.pzDone=sv?(sv.pz||{}):{};EM.tut={};EM.endless=endless?1:0;EM.floor=0;EM.lives=3;EM.eSeed=(Math.random()*1e9)|0;
+  document.body.classList.add('story');ch2UI(false);emUI(true);stAmb(true);keys={};state='story';EM.relics=sv?sv.relics||0:0;EM.up=sv?sv.up||0:0;EM.etype=sv?(sv.et||''):'';EM.pzDone=sv?(sv.pz||{}):{};EM.tut={};EM.endless=endless?1:0;EM.floor=0;EM.lives=3;EM.eSeed=(Math.random()*1e9)|0;
   const go=()=>{emLoad(sv?(sv.v>=2?sv.lv:[0,3,4][sv.lv]||0):0);if(EM.m.boss)hdBossIntro2();if(!sv)toast('WASD حركة · Space اندفاع · F جامور · R وهج · Shift إخفاء · E تفاعل','#ffb060',true)};
   if(endless){emLoad(10);EM.up=0;showCard('البرج اللانهائي','الطابق 1',2400);toast('WASD حركة · Space اندفاع · F جامور · R وهج · Shift إخفاء · E تفاعل · عندك 3 محاولات','#ffb060',true);return}
   if(sv){go();return}
@@ -4035,7 +4035,7 @@ function emFlare(){const R=EM;if(!ST.emOn||state!=='story'||ST.cin||ST.busy||R.c
   R.E-=emFlareCost();R.cd=1.1;R.ring=.001;R.boost=5;stFlash(.45,'#ffe0a0');ST.shake=.5;saFlare();if(R.m.mirrors)emBeam();
   const dirA=R.a;let hits=0;hdBossFlare(dirA);
   for(const e of R.en){if(e.st==='dorm'||e.away>0)continue;const dx=e.x-R.x,dy=e.y-R.y,d=Math.hypot(dx,dy);let ad=Math.atan2(dy,dx)-dirA;ad=((ad+Math.PI*3)%(Math.PI*2))-Math.PI;
-    if(d<7&&(Math.abs(ad)<1||d<1.6)&&emLosFrom(R.x,R.y,e.x,e.y)){hits++;if(e.k==='hunter'||e.k==='snuffer'||e.k==='hound'){if((R.m.arena||R.bs)&&e.k==='hunter'){e.dead=1;for(let i=0;i<14;i++)R.fx.push({x:e.x,y:e.y,vx:rr(-1,1),vy:rr(-1,1),life:0,max:rr(.5,1)})}else e.stun=5}else e.away=9}}
+    if(d<(R.etype==='blue'?8.6:7)&&(Math.abs(ad)<1||d<1.6)&&emLosFrom(R.x,R.y,e.x,e.y)){hits++;if(e.k==='hunter'||e.k==='snuffer'||e.k==='hound'){if((R.m.arena||R.bs)&&e.k==='hunter'){e.dead=1;for(let i=0;i<14;i++)R.fx.push({x:e.x,y:e.y,vx:rr(-1,1),vy:rr(-1,1),life:0,max:rr(.5,1)})}else e.stun=R.etype==='blue'?8:5}else e.away=R.etype==='blue'?13:9}}
   R.en=R.en.filter(e=>!e.dead);
   const m=R.m;for(let dy=-3;dy<=3;dy++)for(let dx=-3;dx<=3;dx++){const tx=Math.floor(R.x)+dx,ty=Math.floor(R.y)+dy,c=m.g[ty]&&m.g[ty][tx];if(!c)continue;const cxx=tx+.5-R.x,cyy=ty+.5-R.y,d=Math.hypot(cxx,cyy);let ad=Math.atan2(cyy,cxx)-dirA;ad=((ad+Math.PI*3)%(Math.PI*2))-Math.PI;
     if(d<3.4&&Math.abs(ad)<.95){if(c==='B'){m.g[ty][tx]='.';saDoor();for(let i=0;i<12;i++)R.fx.push({x:tx+.5,y:ty+.5,vx:rr(-1.2,1.2),vy:rr(-1.2,1.2),life:0,max:rr(.6,1.2)});toast('الرماد احترق','#ffb060',true)}else if(c==='K'){m.g[ty][tx]='S';toast('شيء يلمع في الجدار...','#ffd890',true)}}}
@@ -4088,7 +4088,7 @@ function emScare(kind){const R=EM;
 function emNear(){const R=EM;let best=null,bd=1e9;
   for(const it of R.m.items){if(it.gone)continue;const d=Math.hypot(it.x-R.x,it.y-R.y);let ok=false,lab='';
     if(it.k==='brazier'&&!it.lit&&d<1.4){ok=1;lab='أشعل النار'}else if(it.k==='shard'&&d<1.3){ok=1;lab='خذ الجمرة الأم'}else if(it.k==='altar'&&!it.lit&&d<1.4){ok=1;lab='أشعل المذبح'}
-    else if(it.k==='relic'&&d<1.3){ok=1;lab='خذ الذخيرة'}else if(it.k==='mirror'&&d<1.7){ok=1;lab='أدِر المرآة'}else if(it.k==='vein'&&it.cd<=0&&d<1.6){ok=1;lab='اشرب من عرق الجمر'}else if(it.k==='rune'&&!it.read&&d<1.4){ok=1;lab='اقرأ النقش'}else if(it.k==='puzzle'&&d<1.6){ok=1;lab=it.solved?'القفل مفتوح':'حلّ اللغز'}
+    else if(it.k==='relic'&&d<1.3){ok=1;lab='خذ الذخيرة'}else if(it.k==='mirror'&&d<1.7){ok=1;lab='أدِر المرآة'}else if(it.k==='vein'&&it.cd<=0&&d<1.6){ok=1;lab='اشرب من عرق الجمر'}else if(it.k==='rune'&&!it.read&&d<1.4){ok=1;lab='اقرأ النقش'}else if(it.k==='ember'&&!(it.nopick>0)&&d<1.3){ok=1;lab='خذ '+EMB_T[it.t].n}else if(it.k==='puzzle'&&d<1.6){ok=1;lab=it.solved?'القفل مفتوح':'حلّ اللغز'}
     if(ok&&d<bd){bd=d;best={it,lab}}}
   if(!best&&R.m.npc&&Math.hypot(R.m.npc.x-R.x,R.m.npc.y-R.y)<1.7)best={npc:1,lab:'تكلّم مع سالم'};
   if(!best){const tx=Math.floor(R.x),ty=Math.floor(R.y);let bd2=9;for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++){const c=R.m.g[ty+dy]&&R.m.g[ty+dy][tx+dx];if(c!=='S'&&c!=='X')continue;const cx=Math.max(tx+dx,Math.min(R.x,tx+dx+1)),cy=Math.max(ty+dy,Math.min(R.y,ty+dy+1)),d=Math.hypot(cx-R.x,cy-R.y);if(d<.95&&d<bd2){bd2=d;best=c==='S'?{sec:[tx+dx,ty+dy],lab:'ادفع الجدار'}:{exit:1,lab:emGoalDone()?'ادخل الباب':'الباب مقفل'}}}}
@@ -4112,6 +4112,7 @@ function emInteract(){const R=EM,n=R.near;if(!n||n.hint||ST.cin||ST.busy||state!
     setTimeout(()=>{R.dark=2.4;saBoom(.7);stWhisper('كفى…',2);R.en.forEach(e=>{if(e.dorm&&e.st==='dorm'&&Math.random()<.7){e.st='patrol';e.dorm=false;const p=emFloorRandom(9,[R.x,R.y]);e.x=p[0];e.y=p[1]}})},800)}
   else if(it.k==='relic'){it.gone=1;R.relics++;R.E=100;saChime();stFlash(.6,'#ffe9a0');toast('ذخيرة سرّية '+R.relics+'/4','#ffe9a0',true);emSaveProg()}
   else if(it.k==='vein'){R.E=Math.min(100,R.E+45);it.cd=30;saIgnite();stFlash(.3,'#ff9a40');toast('الجمر يسري فيك','#ff9a40',true)}
+  else if(it.k==='ember'){hdEmberTake(it)}
   else if(it.k==='rune'){it.read=1;saPaper();stSay([['نقش',it.txt]])}}
 /* ---------- update ---------- */
 function emUpdate(dt){const R=EM,m=R.m;ST.t+=dt;R.t+=dt;
@@ -4119,17 +4120,17 @@ function emUpdate(dt){const R=EM,m=R.m;ST.t+=dt;R.t+=dt;
   const can=state==='story'&&!ST.cin&&!ST.busy;let moving=false;
   if(R.cd>0)R.cd-=dt;if(R.boost>0)R.boost=Math.max(0,R.boost-dt*6);if(R.dark>0)R.dark-=dt;if(R.ring>0){R.ring+=dt;if(R.ring>.8)R.ring=0}
   R.fx.forEach(p=>{p.life+=dt;p.x+=p.vx*dt;p.y+=p.vy*dt});R.fx=R.fx.filter(p=>p.life<p.max);if(R.ghost){R.ghost.t-=dt;if(R.ghost.t<=0)R.ghost=null}
-  m.items.forEach(i=>{if(i.cd>0)i.cd-=dt});
+  m.items.forEach(i=>{if(i.cd>0)i.cd-=dt;if(i.nopick>0)i.nopick-=dt});
   if(can){R.cover=(!(R.dashT>0))&&((keys.shift&&lastInput==='key')||keys.c||ST.snk)?1:0;
     let ix=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0)+tstick.x+padS.x,iy=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0)+tstick.y+padS.y;let il=Math.hypot(ix,iy);if(il>1){ix/=il;iy/=il}if(R.dashT>0){ix=R.dx;iy=R.dy;il=1}
     if(il>.15){moving=true;R.a=Math.atan2(iy,ix);if(Math.abs(ix)>Math.abs(iy)*.7){R.fd='s';R.flip=ix<0?1:0}else R.fd=iy>0?'d':'u';const sp=R.dashT>0?MV.dashSp:(R.cover?1.35:2.85),mx=ix*sp*dt,my=iy*sp*dt,r=.22;let x=R.x,y=R.y;
       if(!emSolid(x+mx+Math.sign(mx)*r,y-r*.5)&&!emSolid(x+mx+Math.sign(mx)*r,y+r*.5))x+=mx;if(!emSolid(x-r,y+my+Math.sign(my)*r*.6)&&!emSolid(x+r,y+my+Math.sign(my)*r*.6))y+=my;R.x=x;R.y=y}
     R.mv+=((moving?1:0)-R.mv)*Math.min(1,dt*8);R.bob+=dt*(moving?(R.cover?6:10):0);
     /* ember economy */
-    let dec=R.cover?.22:.55;if(emLitZone(R.x,R.y,2.1)){dec=-9}if(m.arena||m.boss)dec*=.6;R.E=clamp(R.E-dec*dt,0,100);
+    let dec=R.cover?.22:.55;if(R.etype==='green')dec=Math.max(0,dec-.45);if(emLitZone(R.x,R.y,2.1)){dec=-9}if(m.arena||m.boss)dec*=.6;R.E=clamp(R.E-dec*dt,0,100);
     if(R.E<=0&&!ST.busy)emDie('dark');
     const tx=Math.floor(R.x),ty=Math.floor(R.y);for(let yy=-4;yy<=4;yy++)for(let xx=-4;xx<=4;xx++)if(R.seen[ty+yy]&&R.seen[ty+yy][tx+xx]!==undefined)R.seen[ty+yy][tx+xx]=1;
-    for(const it of m.items){if(it.k==='coal'&&!it.gone&&Math.hypot(it.x-R.x,it.y-R.y)<.75){it.gone=1;R.E=Math.min(100,R.E+25);saIgnite();toast('+ جمر','#ffb060')}}
+    for(const it of m.items){if(it.k==='coal'&&!it.gone&&Math.hypot(it.x-R.x,it.y-R.y)<.75){it.gone=1;R.E=Math.min(100,R.E+(R.etype==='green'?38:25));saIgnite();toast('+ جمر','#ffb060')}}
     emCrumble(dt);R.near=emNear();const pr=$('#prompt');if(R.near){$('#promptT').textContent=R.near.lab;pr.hidden=false}else pr.hidden=true;$('#tAct').hidden=!R.near||!!R.near.hint;
     if(tAct&&!ST.tAp)emInteract();ST.tAp=tAct;
     if(m.th===0&&!R.tut.barrier){for(let dy=-3;dy<=3;dy++)for(let dx=-3;dx<=3;dx++){const c=m.g[ty+dy]&&m.g[ty+dy][tx+dx];if(c==='B')emTip('barrier','الرماد يسدّ الطريق... اضغط R (وهج) لتحرقه')}}
@@ -4175,7 +4176,7 @@ const hdV=(g,y1,y2,x,wd)=>{for(let j=Math.min(y1,y2);j<=Math.max(y1,y2);j++)for(
 const hdSet=(g,cells,c)=>cells.forEach(([x,y])=>{g[y][x]=c});
 const hdIt=(k,x,y,o)=>Object.assign({k,x,y},o||{});
 
-function hdBuild(lv){if(EM.endless)return hdEndless(lv-10);return HD_LEVELS[lv]()}
+function hdBuild(lv){const m=EM.endless?hdEndless(lv-10):HD_LEVELS[lv]();try{hdPlaceEmbers(m,lv)}catch(e){console.warn('embers',e)}return m}
 /* ---- المستوى 1: بوابة الرماد ---- */
 function hdL0(){const w=48,h=32,g=hdGrid(w,h);
   hdRoom(g,2,21,12,9);hdRoom(g,17,19,14,11);hdRoom(g,2,5,12,8);hdRoom(g,17,5,14,9);hdRoom(g,34,17,12,12);hdRoom(g,36,3,10,7);
@@ -4347,7 +4348,7 @@ function hdPuzzleProp(o,sx,sy,t){hdShadow(sx,sy+1,11,.45);ctx.fillStyle='#241c1a
 function hdFountain(o,sx,sy,t){ctx.save();ctx.fillStyle='#2c2622';ctx.beginPath();ctx.ellipse(sx,sy,30,17,0,0,7);ctx.fill();ctx.fillStyle='#4a423a';ctx.beginPath();ctx.ellipse(sx,sy-1,28,15,0,0,7);ctx.fill();ctx.fillStyle='#142a38';ctx.beginPath();ctx.ellipse(sx,sy-1,24,12,0,0,7);ctx.fill();
   ctx.strokeStyle='rgba(140,210,255,.35)';ctx.lineWidth=1;for(let i=0;i<3;i++){ctx.beginPath();ctx.ellipse(sx,sy-1,6+((t*8+i*8)%22),3+((t*4+i*4)%10),0,0,7);ctx.stroke()}ctx.fillStyle='#5a5148';ctx.fillRect(sx-2,sy-14,4,12);ctx.restore()}
 function hdLights(cam,t){const R=EM,m=R.m,L=[],hx=R.x*HT-cam.x,hy=R.y*HT-cam.y-8;const fl=1+Math.sin(t*9)*.035+Math.sin(t*23)*.02,rad=emRad()*HT*.85;
-  L.push({x:hx,y:hy,r:rad,a:1,gl:.22,col:'#ff9a40'});
+  L.push({x:hx,y:hy,r:rad,a:1,gl:.22,col:R.etype&&EMB_T[R.etype]?EMB_T[R.etype].c:'#ff9a40'});
   for(const it of m.items){if(it.gone)continue;const x=it.x*HT-cam.x,y=it.y*HT-cam.y;if(x<-130||x>W+130||y<-130||y>H+130)continue;
     if((it.k==='brazier'||it.k==='altar')&&it.lit)L.push({x,y:y-14,r:(it.k==='altar'?96:86)*(1+Math.sin(t*8+it.x)*.03),a:.95,gl:.28,col:'#ff8a30'});
     else if(it.k==='coal')L.push({x,y:y-3,r:34,a:.55,gl:.2,col:'#ff7a20'});
@@ -4359,7 +4360,7 @@ function hdLights(cam,t){const R=EM,m=R.m,L=[],hx=R.x*HT-cam.x,hy=R.y*HT-cam.y-8
     else if(it.k==='rune'&&!it.read)L.push({x,y:y-10,r:26,a:.3,gl:.12,col:m.th===2?'#ff6a3a':'#ffc070'})}
   if(R.beam){const a=Math.max(0,1-R.beam.t/1.4);R.beam.pts.forEach((p,i)=>{if(i%2===0)L.push({x:p[0]*HT-cam.x,y:p[1]*HT-cam.y-8,r:44,a:.8*a,gl:0,col:'#ffd890'})})}
   if(m.npc)L.push({x:m.npc.x*HT-cam.x,y:m.npc.y*HT-cam.y-12,r:54,a:.7,gl:.22,col:'#ffb060'});
-  hdBossLights(cam,L);
+  hdBossLights(cam,L);hdSecLights(cam,L);
   if(m.arena){const hxp=m.arena.hx*HT-cam.x,hyp=m.arena.hy*HT-cam.y,op=R.hp&&R.hp.open;L.push({x:hxp,y:hyp-12,r:(op?210:130)+Math.sin(t*3)*8,a:op?1:.75,gl:op?.4:.26,col:op?'#ffcf70':'#ff3a1a'})}
   if(R.ring>0){const k=R.ring/.8;L.push({x:hx,y:hy,r:60+k*260,a:(1-k)*1,gl:.2,col:'#ffd890'})}
   return L}
@@ -4390,7 +4391,7 @@ function hdWorld(dt,cam,Z,heroOn,heroPose){const R=EM,m=R.m,th=EM_TH[m.th],G=HD.
   const E=[],fr=Math.floor(t*8),hxp=R.x,hyp=R.y;
   const push=(y,f)=>E.push({y,f});
   m.items.forEach((o,k)=>{if(o.gone)return;const sx=o.x*HT-ox,sy=o.y*HT-oy;if(sx<-40||sx>W+40||sy<-60||sy>H+60)return;
-    if(o.k==='mirror')push(o.y,()=>hdMirror(o,sx,sy,t));else if(o.k==='brazier')push(o.y,()=>hdBrazier(o,sx,sy,k));else if(o.k==='altar')push(o.y,()=>hdAltar(o,sx,sy,k));else if(o.k==='rune')push(o.y,()=>hdRune(o,sx,sy,k));else if(o.k==='puzzle')push(o.y,()=>hdPuzzleProp(o,sx,sy,t));else if(o.k==='fountain')push(o.y-1.4,()=>hdFountain(o,sx,sy,t))});
+    if(o.k==='mirror')push(o.y,()=>hdMirror(o,sx,sy,t));else if(o.k==='brazier')push(o.y,()=>hdBrazier(o,sx,sy,k));else if(o.k==='altar')push(o.y,()=>hdAltar(o,sx,sy,k));else if(o.k==='rune')push(o.y,()=>hdRune(o,sx,sy,k));else if(o.k==='puzzle')push(o.y,()=>hdPuzzleProp(o,sx,sy,t));else if(o.k==='fountain')push(o.y-1.4,()=>hdFountain(o,sx,sy,t));else if(o.k==='ember')push(o.y,()=>hdEmberPick(o,sx,sy,t))});
   const c0=Math.max(0,Math.floor(ox/HT)-2),c1=Math.min(m.w-1,Math.ceil((ox+W/Z)/HT)+2),r0=Math.max(0,Math.floor(oy/HT)-3),r1=Math.min(m.h-1,Math.ceil((oy+H/Z)/HT)+3);
   for(let y=r0;y<=r1;y++)for(let x=c0;x<=c1;x++)if(m.g[y][x]==='P')push(y+.5,()=>m.th===5?hdTree((x+.5)*HT-ox,(y+.75)*HT-oy,x*7+y):hdPillar((x+.5)*HT-ox,(y+.75)*HT-oy));
   if(R.bs&&!R.bs.dead)push(R.bs.y+.9,()=>hdBossDraw(R.bs,R.bs.x*HT-ox,R.bs.y*HT-oy,t));
@@ -4438,7 +4439,7 @@ function hdWorld(dt,cam,Z,heroOn,heroPose){const R=EM,m=R.m,th=EM_TH[m.th],G=HD.
     else if(e.k==='snuffer'){ctx.fillStyle='#e6f0ff';const ex=sx-11;ctx.fillRect(ex+8,sy-26,2,2);ctx.fillRect(ex+12,sy-26,2,2);glowAdd(sx,sy-24,e.st==='hunt'?18:11,'#9ab0ff',.4)}
     else if(e.k==='hunter'){const hu=e.st==='hunt'&&e.stun<=0,c=e.stun>0?'#cfeaff':'#ff3a10';ctx.fillStyle=c;const ex=sx-12+(e.fx||0);ctx.fillRect(ex+9,sy-25,2,1);ctx.fillRect(ex+13,sy-25,2,1);glowAdd(sx,sy-24,hu?15:9,c,hu?.55:.3)}
     else if(!e.fz){ctx.fillStyle='#bfe6ff';glowAdd(sx,sy-20,9,'#bfe6ff',.2)}});
-  hdBossGlow(ox,oy,t);hdJamGlow(ox,oy,t);
+  hdBossGlow(ox,oy,t);hdJamGlow(ox,oy,t);hdSecGlow(ox,oy,t);
   if(m.arena){const op=R.hp&&R.hp.open,hx=m.arena.hx*HT-ox,hy=m.arena.hy*HT-oy;const pu=.6+.4*Math.sin(t*3);glowAdd(hx,hy-12,op?120:70,op?'#ffd070':'#ff3010',op?.7:.35*pu+.15);
     ctx.fillStyle=op?'#fff0b0':'#ff4a1a';ctx.beginPath();ctx.ellipse(hx,hy-12,op?9:2.6,op?7:1.6,0,0,7);ctx.fill();
     if(op){ctx.strokeStyle='rgba(255,220,130,.4)';ctx.lineWidth=1;for(let i=0;i<14;i++){const a=i/14*Math.PI*2+t*.5;ctx.beginPath();ctx.moveTo(hx+Math.cos(a)*14,hy-12+Math.sin(a)*10);ctx.lineTo(hx+Math.cos(a)*(60+Math.sin(t*6+i)*14),hy-12+Math.sin(a)*(44+Math.sin(t*6+i)*10));ctx.stroke()}}}
@@ -5460,7 +5461,7 @@ function inKey(e){if(!INTR.on)return;e.stopPropagation();e.preventDefault();if(e
 /* =====================================================================
    التحديث من داخل اللعبة: يفحص آخر إصدار على GitHub ويعرض زر "حدّث الآن"
    ===================================================================== */
-const APP_VERSION='1.3.1';
+const APP_VERSION='1.4.0';
 const UPD={repo:'a62724195-lab/ember-legend',info:null,busy:0,dismissed:0,checking:0,pct:0,err:''};
 (function(){
 const st=document.createElement('style');st.textContent=`
@@ -5583,7 +5584,7 @@ function mvInput(){let ix=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?
 function mvOk(){return ST.emOn&&state==='story'&&!ST.cin&&!ST.busy&&!HD.cine}
 function emDash(){const R=EM;if(!mvOk()||(R.dashCd||0)>0||R.dashT>0)return;
   if(R.E<MV.dashCost+2){toast('الجمر أضعف من أن يندفع','#ff7a4a',true);R.dashCd=.4;return}
-  const v=mvInput()||[Math.cos(R.a),Math.sin(R.a)];R.dx=v[0];R.dy=v[1];R.a=Math.atan2(v[1],v[0]);R.dashT=MV.dashT;R.dashCd=MV.dashCd;R.inv=MV.invT;R.E-=MV.dashCost;
+  const v=mvInput()||[Math.cos(R.a),Math.sin(R.a)];R.dx=v[0];R.dy=v[1];R.a=Math.atan2(v[1],v[0]);const vi=R.etype==='violet';R.dashT=MV.dashT*(vi?1.15:1);R.dashCd=vi?.5:MV.dashCd;R.inv=vi?.62:MV.invT;R.E-=vi?2:MV.dashCost;
   if(Math.abs(v[0])>Math.abs(v[1])*.7){R.fd='s';R.flip=v[0]<0?1:0}else R.fd=v[1]>0?'d':'u';
   if(SA.n){saNoise(.28,'bandpass',900,1.2,.38,null,3600);saTone(240,90,.2,'triangle',.08)}
   stFlash(.12,'#ffcf8a');emTip('dash','الاندفاع يجعلك تعبر الأعداء لحظة قصيرة. Space أو Q')}
@@ -5597,12 +5598,12 @@ function mvTick(dt){const R=EM,m=R.m;if(!R.m)return;
   if(R.dashCd>0)R.dashCd-=dt;if(R.inv>0)R.inv-=dt;if(R.jmCd>0)R.jmCd-=dt;
   const J=R.jm;
   if(J){J.tr.push([J.x,J.y]);if(J.tr.length>8)J.tr.shift();
-    if(!J.back){const sp=MV.jmOut*dt,nx=J.x+J.vx*sp,ny=J.y+J.vy*sp;J.d+=sp;if(emSolid(nx,ny)||J.d>=MV.jmRange){J.back=1;if(SA.n&&emSolid(nx,ny))saTone(900,500,.08,'square',.05)}else{J.x=nx;J.y=ny}}
-    else{const dx=R.x-J.x,dy=R.y-J.y,d=Math.hypot(dx,dy)||1,sp=Math.min(d,MV.jmBack*dt);J.x+=dx/d*sp;J.y+=dy/d*sp;if(d<.65){R.jm=null;R.jmCd=MV.jmCd;if(J.got){R.E=Math.min(100,R.E+J.got*25);saChime&&saChime()}return}}
+    if(!J.back){const sp=MV.jmOut*dt,nx=J.x+J.vx*sp,ny=J.y+J.vy*sp;J.d+=sp;if(emSolid(nx,ny)||J.d>=MV.jmRange*(R.etype==='gold'?1.6:1)){J.back=1;if(SA.n&&emSolid(nx,ny))saTone(900,500,.08,'square',.05)}else{J.x=nx;J.y=ny}}
+    else{const dx=R.x-J.x,dy=R.y-J.y,d=Math.hypot(dx,dy)||1,sp=Math.min(d,MV.jmBack*dt);J.x+=dx/d*sp;J.y+=dy/d*sp;if(d<.65){R.jm=null;R.jmCd=MV.jmCd;if(J.got){R.E=Math.min(100,R.E+J.got*(R.etype==='green'?38:25));saChime&&saChime()}return}}
     for(const e of R.en){if(e.st==='dorm'||e.away>0||J.hit[e.t.toFixed(3)+e.k])continue;if(Math.hypot(e.x-J.x,e.y-J.y)<.85){J.hit[e.t.toFixed(3)+e.k]=1;
-      if(e.k==='weeper'){e.away=6}else if(e.k==='hunter'||e.k==='snuffer'||e.k==='hound'){e.stun=Math.max(e.stun||0,3.2)}
+      if(e.k==='weeper'){e.away=6}else if(e.k==='hunter'||e.k==='snuffer'||e.k==='hound'){e.stun=Math.max(e.stun||0,R.etype==='blue'?6:3.2)}
       stFlash(.25,'#ffd890');ST.shake=Math.max(ST.shake,.4);if(SA.n){saBoom&&saBoom(.3);saTone(700,300,.1,'square',.07)}
-      for(let i=0;i<8;i++)R.fx.push({x:e.x,y:e.y,vx:rr(-1.4,1.4),vy:rr(-1.4,1.4),life:0,max:rr(.4,.9)});J.back=1}}
+      for(let i=0;i<8;i++)R.fx.push({x:e.x,y:e.y,vx:rr(-1.4,1.4),vy:rr(-1.4,1.4),life:0,max:rr(.4,.9)});if(R.etype!=='gold')J.back=1}}
     for(const it of m.items){if(it.gone)continue;
       if(it.k==='coal'&&Math.hypot(it.x-J.x,it.y-J.y)<.9){it.gone=1;J.got++;if(SA.n)saIgnite&&saIgnite()}
       else if(it.k==='brazier'&&!it.lit&&!it.bk&&Math.hypot(it.x-J.x,it.y-J.y)<1.1){it.lit=true;if(SA.n)saIgnite&&saIgnite();toast('الجامور أشعل النار','#ffb060',true);J.back=1}}}}
@@ -5619,6 +5620,42 @@ const __mvu=emUpdate;emUpdate=function(dt){__mvu(dt);if(EM.m){mvTick(dt);const a
   const hook=(id,fn)=>{const el=$(id);if(!el)return;['pointerdown','click'].forEach(ev=>el.addEventListener(ev,e=>{if(!ST.emOn)return;e.stopImmediatePropagation();e.preventDefault();if(ev==='pointerdown')fn()},true))};
   hook('#tPot',emDash);hook('#tAtk',emThrow)})();
 Object.assign(window.__hd||{},{MV,emDash,emThrow,mvTick});
+/* =====================================================================
+   جمرات بقدرات: تُلتقط من المراحل والبرج، وحدة نشطة في كل مرة
+   ===================================================================== */
+const EMB_T={
+  blue:{n:'جمرة الصقيع',c:'#7ad8ff',d:'الوهج والجامور يجمّدان الأعداء أطول ومدى أبعد'},
+  green:{n:'جمرة الحياة',c:'#7dff9a',d:'الجمرات الصغيرة تعطيك طاقة أكثر، ونارك تنطفئ ببطء'},
+  violet:{n:'جمرة الظل',c:'#c58bff',d:'اندفاع أسرع وحماية أطول وتكلفة أقل'},
+  gold:{n:'جمرة الصاعقة',c:'#ffd24a',d:'الجامور أبعد ويخترق كل الأعداء'}};
+const EMB_PLAN={1:['blue','green'],2:['green','violet'],3:['violet','gold'],4:['blue','gold'],5:['gold','blue'],6:['violet','green'],7:['blue','gold']};
+function hdPlaceEmbers(m,lv){
+  const endless=EM.endless,fl=lv-10,types=endless?[['blue','green','violet','gold'][(((EM.eSeed||0)>>3)+fl*3+Math.abs(fl))%4]]:(EMB_PLAN[lv]||[]);
+  if(!types.length||!m.start)return;
+  const g=m.g,sx=Math.floor(m.start[0]),sy=Math.floor(m.start[1]),seen=Array.from({length:m.h},()=>Array(m.w).fill(-1)),q=[[sx,sy]];seen[sy][sx]=0;
+  for(let i=0;i<q.length;i++){const [x,y]=q[i];for(const [a,b] of [[1,0],[-1,0],[0,1],[0,-1]]){const nx=x+a,ny=y+b;if(g[ny]&&(g[ny][nx]==='.'||g[ny][nx]==='C')&&seen[ny][nx]<0){seen[ny][nx]=seen[y][x]+1;q.push([nx,ny])}}}
+  const solid=(x,y)=>{const c=g[Math.floor(y)]&&g[Math.floor(y)][Math.floor(x)];return c!=='.'};
+  const clear=(x,y)=>{for(let r=.3;r<=1.2;r+=.15)for(let a=0;a<8;a++)if(solid(x+Math.cos(a*.785)*r,y+Math.sin(a*.785)*r))return r;return 2};
+  const arena=!!(m.arena||m.boss),lo=arena?5:13,hi=arena?10:999,rnd=enRng(4242+lv*31+(endless?(EM.eSeed|0):0));
+  const near=(x,y,r)=>m.items.some(i=>Math.hypot(i.x-x,i.y-y)<r)||m.en.some(e=>Math.hypot(e.x-x,e.y-y)<4);
+  let cand=[];for(let y=1;y<m.h-1;y++)for(let x=1;x<m.w-1;x++){const d=seen[y][x];if(g[y][x]!=='.'||d<lo||d>hi)continue;const cx=x+.5,cy=y+.5;if(clear(cx,cy)<1.0||near(cx,cy,2.2))continue;cand.push([cx,cy])}
+  if(!cand.length)for(let y=1;y<m.h-1;y++)for(let x=1;x<m.w-1;x++){const d=seen[y][x];if(g[y][x]!=='.'||d<4)continue;const cx=x+.5,cy=y+.5;if(clear(cx,cy)>=.8&&!near(cx,cy,1.6))cand.push([cx,cy])}
+  const used=[];types.forEach((t,i)=>{let tries=0,p;do{p=cand[Math.floor(rnd()*cand.length)];tries++}while(p&&used.some(u=>Math.hypot(u[0]-p[0],u[1]-p[1])<9)&&tries<40);if(p){used.push(p);m.items.push(hdIt('ember',p[0],p[1],{id:'em'+i,t}))}})}
+function hdEmberTake(it){const R=EM,old=R.etype;it.gone=1;R.etype=it.t;const T=EMB_T[it.t];
+  if(old&&old!==it.t)R.m.items.push(hdIt('ember',R.x+(Math.cos(R.a)*-.9),R.y+(Math.sin(R.a)*-.9),{id:'ed'+Math.random(),t:old,nopick:1.2}));
+  saChime&&saChime();stFlash(.5,T.c);ST.shake=.4;toast(T.n+' · '+T.d,T.c,true);emSaveProg&&emSaveProg()}
+function hdEmberPick(o,sx,sy,t){const T=EMB_T[o.t],c=T.c,b=Math.sin(t*3+o.x)*2.2;hdShadow(sx,sy+2,9,.4);ctx.save();ctx.translate(sx,sy-12+b);
+  ctx.strokeStyle=c;ctx.globalAlpha=.55;ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(0,0,9,3.5,t*1.5,0,7);ctx.stroke();ctx.globalAlpha=1;
+  ctx.fillStyle=c;ctx.beginPath();ctx.moveTo(0,-8);ctx.bezierCurveTo(6,-3,6,5,0,8);ctx.bezierCurveTo(-6,5,-6,-3,0,-8);ctx.fill();ctx.fillStyle='#ffffffcc';ctx.beginPath();ctx.moveTo(0,-4);ctx.bezierCurveTo(2.5,-1,2.5,3,0,4.5);ctx.bezierCurveTo(-2.5,3,-2.5,-1,0,-4);ctx.fill();ctx.restore()}
+function hdSecGlow(ox,oy,t){const R=EM;for(const o of R.m.items){if(o.k!=='ember'||o.gone)continue;const x=o.x*HT-ox,y=o.y*HT-oy-12;if(x<-60||x>W+60||y<-60||y>H+60)continue;ctx.save();ctx.globalCompositeOperation='lighter';glowAdd(x,y,34+Math.sin(t*4+o.x)*4,EMB_T[o.t].c,.55);for(let i=0;i<4;i++){const a=t*1.4+i*1.57,r=11+Math.sin(t*2+i)*3;ctx.fillStyle=EMB_T[o.t].c;ctx.globalAlpha=.7;ctx.fillRect(x+Math.cos(a)*r,y+Math.sin(a)*r*.6-4,1.5,1.5)}ctx.restore()}}
+function hdSecLights(cam,L){for(const o of EM.m.items){if(o.k==='ember'&&!o.gone)L.push({x:o.x*HT-cam.x,y:o.y*HT-cam.y-12,r:56,a:.7,gl:.25,col:EMB_T[o.t].c})}}
+/* شارة الجمرة الحالية */
+(function(){const st=document.createElement('style');st.textContent='#embBadge{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + 52px);z-index:6;display:flex;align-items:center;gap:8px;padding:4px 12px;border-radius:14px;background:#000a;border:1px solid var(--ec,#ff9a40);color:#fff2d8;font-size:13px;pointer-events:none;box-shadow:0 0 12px var(--ec,#ff9a40)55}#embBadge[hidden]{display:none}#embBadge i{width:10px;height:10px;border-radius:50%;background:var(--ec,#ff9a40);box-shadow:0 0 8px var(--ec,#ff9a40)}';document.head.appendChild(st);
+  const d=document.createElement('div');d.id='embBadge';d.hidden=true;d.innerHTML='<i></i><span></span>';document.body.appendChild(d)})();
+function ebUpdate(){const b=$('#embBadge'),t=EM.etype;if(!b)return;if(!t||!ST.emOn||state!=='story'||ST.cin||HD.cine){b.hidden=true;return}if(b.dataset.t!==t){b.dataset.t=t;b.style.setProperty('--ec',EMB_T[t].c);b.lastChild.textContent=EMB_T[t].n}b.hidden=false}
+const __ew=emUpdate;emUpdate=function(dt){__ew(dt);ebUpdate()};
+Object.assign(window.__hd||{},{EMB_T,hdPlaceEmbers,hdEmberTake});
+try{HD_TOPICS.push({id:'embs',q:'وش هالجمرات الملوّنة اللي بالأرض؟',ok:e=>e.lv>=1||e.endless,lines:()=>[['سالم','هذي شرارات من الجمر الأول يا ولدي، كل وحدة تحمل طبعاً غير الثانية.'],['سالم','الزرقاء تجمّد من يلمسها نورها، والخضراء تسقيك الحياة، والبنفسجية تخفّ بك كالظل، والذهبية ترمي جامورك كالصاعقة.'],['سالم','تحمل وحدة بس. إذا لقيت غيرها وبدّلت، الأولى تنتظرك على الأرض.']]})}catch(e){}
 })();
 </script>
 </body></html>
