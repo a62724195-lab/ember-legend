@@ -5460,7 +5460,7 @@ function inKey(e){if(!INTR.on)return;e.stopPropagation();e.preventDefault();if(e
 /* =====================================================================
    التحديث من داخل اللعبة: يفحص آخر إصدار على GitHub ويعرض زر "حدّث الآن"
    ===================================================================== */
-const APP_VERSION='1.3.0';
+const APP_VERSION='1.3.1';
 const UPD={repo:'a62724195-lab/ember-legend',info:null,busy:0,dismissed:0,checking:0,pct:0,err:''};
 (function(){
 const st=document.createElement('style');st.textContent=`
@@ -5478,7 +5478,7 @@ const st=document.createElement('style');st.textContent=`
 .ytb .yi{display:inline-grid;place-items:center;width:26px;height:18px;border-radius:5px;background:#e8281a;color:#fff;font-size:9px;line-height:1;padding-inline-start:1px}
 #updVer{position:fixed;bottom:6px;right:10px;z-index:5;font-size:11px;color:#a69784aa;pointer-events:none}
 `;document.head.appendChild(st);
-const d=document.createElement('div');d.id='updBn';d.hidden=true;d.innerHTML='<div><b id="ubT"></b><small id="ubS"></small></div><div class="pb"><i id="ubP"></i></div><div class="rw"><button id="ubL" type="button">لاحقاً</button><button id="ubGo" class="ok" type="button">حدّث الآن</button></div>';document.body.appendChild(d);
+const d=document.createElement('div');d.id='updBn';d.hidden=true;d.innerHTML='<div><b id="ubT"></b><small id="ubS"></small></div><div class="pb"><i id="ubP"></i></div><div class="rw"><button id="ubL" type="button">لاحقاً</button><button id="ubPg" type="button" hidden>صفحة التحميل</button><button id="ubGo" class="ok" type="button">حدّث الآن</button></div>';document.body.appendChild(d);
 const v=document.createElement('div');v.id='updVer';v.textContent='v'+APP_VERSION;document.body.appendChild(v)})();
 function updCmp(a,b){const x=String(a).replace(/^v/,'').split('.').map(Number),y=String(b).replace(/^v/,'').split('.').map(Number);for(let i=0;i<3;i++){const p=x[i]||0,q=y[i]||0;if(p!==q)return p>q?1:-1}return 0}
 function updPlat(){if(window.emberDesktop)return'desktop';try{if(window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform())return'android'}catch(e){}return'web'}
@@ -5495,12 +5495,12 @@ async function updGo(){const i=UPD.info;if(!i||UPD.busy)return;const pl=updPlat(
   if(pl==='desktop'){const port=await window.emberDesktop.portable().catch(()=>false),a=pick(port?/Portable.*\.exe$/i:/Setup.*\.exe$/i)||pick(/\.exe$/i);if(!a){updOpen(i.html);return}
     UPD.busy=1;$('#ubT').textContent='جاري تحميل التحديث...';$('#ubP').style.width='2%';updShow();
     window.emberDesktop.onProgress(p=>{$('#ubP').style.width=Math.max(2,Math.round(p*100))+'%';$('#ubS').textContent=Math.round(p*100)+'%'});
-    try{await window.emberDesktop.update(a.url,a.name);$('#ubT').textContent='يفتح المثبّت... اللعبة راح تُغلق';$('#ubS').textContent='كمّل خطوات التثبيت'}catch(e){UPD.busy=0;UPD.err='فشل التحميل. جرّب مرة ثانية';updShow()}return}
-  if(pl==='android'){const a=pick(/\.apk$/i);updOpen(a?a.url:i.html);toast('بعد التنزيل افتح الملف واضغط "تثبيت"','#ffd9a0');return}
+    try{await window.emberDesktop.update(a.url,a.name);$('#ubT').textContent='يفتح المثبّت... اللعبة راح تُغلق';$('#ubS').textContent='كمّل خطوات التثبيت'}catch(e){UPD.busy=0;const why=String((e&&e.message)||e||'').replace(/^Error invoking remote method '[^']*':\s*(Error:\s*)?/,'').slice(0,70);UPD.err='تعذّر التحميل'+(why?' ('+why+')':'')+' · جرّب «صفحة التحميل»';$('#ubPg').hidden=false;updShow()}return}
+  if(pl==='android'){updOpen(i.html);$('#ubPg').hidden=false;UPD.err='نزّل ملف Ember-Legend-Android.apk من الصفحة ثم افتحه واضغط "تثبيت"';updShow();return}
   updOpen(i.html)}
 const YT_URL='https://www.youtube.com/@ASk-o7i3v';
 function updOpen(url){try{if(updPlat()==='android'){const B=Capacitor.registerPlugin('Browser');B.open({url});return}}catch(e){}window.open(url,'_blank')}
-$('#ubGo').addEventListener('click',updGo);$('#ubL').addEventListener('click',()=>{UPD.dismissed=1;updShow()});
+$('#ubGo').addEventListener('click',updGo);$('#ubPg').addEventListener('click',()=>updOpen((UPD.info&&UPD.info.html)||('https://github.com/'+UPD.repo+'/releases/latest')));$('#ubL').addEventListener('click',()=>{UPD.dismissed=1;updShow()});
 setInterval(()=>{const b=$('#updBn');if(!UPD.info){if(!b.hidden)b.hidden=true;return}const vis=updVisible();if(!vis&&!b.hidden)b.hidden=true;else if(vis&&b.hidden&&(!UPD.dismissed||UPD.busy))updShow()},500);
 setInterval(()=>{if(updVisible()&&!UPD.busy)updCheck(false)},30*60*1000);
 (function(){const tryFirst=()=>{if(updVisible()){updCheck(false)}else setTimeout(tryFirst,1500)};setTimeout(tryFirst,2500);
