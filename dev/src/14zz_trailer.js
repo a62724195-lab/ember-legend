@@ -53,6 +53,6 @@ function trStart(){if(TRL.on||(typeof INTR!=='undefined'&&INTR.on))return;TRL.on
 function trExit(){if(!TRL.on)return;TRL.on=0;HD.cine=null;ST.cin=null;$('#cine').hidden=true;$('#ccap').textContent='';inDroneStop(.8);EM.trailer=0;EM.endless=0;
   document.body.classList.remove('trailer');$('#trl').hidden=true;$('#trEnd').classList.remove('show');$('#trT').className='';stExit(true)}
 addEventListener('keydown',e=>{if(TRL.on&&e.key==='Escape'){e.stopPropagation();e.preventDefault();trExit()}},true);
-(function(){const c=$('#enBtn')||$('#emCont');if(!c||!c.parentNode)return;const b=document.createElement('button');b.type='button';b.className='mbtn s1';b.id='trBtn';b.textContent='▶ شاهد الإعلان';c.parentNode.insertBefore(b,c.nextSibling);b.addEventListener('click',trStart)})();
+(function(){const c=$('#dlBtn')||$('#enBtn')||$('#emCont');if(!c||!c.parentNode)return;const b=document.createElement('button');b.type='button';b.className='mbtn s1';b.id='trBtn';b.textContent='▶ شاهد الإعلان';c.parentNode.insertBefore(b,c.nextSibling);b.addEventListener('click',trStart)})();
 if(/[?&]trailer/.test(location.search))setTimeout(trStart,700);
 Object.assign(window.__hd||{},{trStart,trExit,TRL});

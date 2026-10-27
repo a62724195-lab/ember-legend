@@ -3,3 +3,4 @@ dist/
 android/
 package-lock.json
 .DS_Store
+dev/out.html
