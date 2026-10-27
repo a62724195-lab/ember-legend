@@ -1,0 +1,536 @@
+<title>أسطورة الجمر</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@500;700&family=Tajawal:wght@400;500;700&display=swap">
+<style>
+/* Layout: full-height game column. HUD strip, objective line, 4:3 pixel viewport, touch pad below on phones. Single dark world, ember accent. */
+:root{
+  --bg:#0f0d0c; --panel:#1a1614; --panel2:#251e1a; --line:#3b2f28;
+  --ink:#f1e7d6; --dim:#a69784; --ember:#ff7a2f; --ember2:#ffb067;
+  --hp:#d8392f; --xp:#4fb5a3; --gold:#e8b64a; --good:#6fd36f; --bad:#ff6b5e;
+  --c0:#b9b1a3; --c1:#4aa3ff; --c2:#b872ff; --c3:#ffb02e;
+  --font-display:'Reem Kufi','Tajawal',system-ui,sans-serif;
+  --font-body:'Tajawal',system-ui,sans-serif;
+  color-scheme:dark;
+}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:15px;overflow:hidden;-webkit-user-select:none;user-select:none;touch-action:none}
+button{font:inherit;touch-action:manipulation;color:inherit;cursor:pointer}
+button:focus-visible{outline:2px solid var(--ember2);outline-offset:2px}
+#app{position:absolute;inset:0;overflow:hidden}
+#hud{position:absolute;top:0;inset-inline:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:8px 12px;flex-wrap:wrap;padding:10px 16px 18px;background:linear-gradient(#000d,#0000);pointer-events:none}
+#hud .btn,#hud .chip{pointer-events:auto}
+.hud-l{display:flex;align-items:center;gap:10px;flex:1 1 260px;min-width:0}
+.lvl{font-family:var(--font-display);font-weight:700;font-size:20px;color:var(--ember2);min-width:2.2em;text-align:center;border:2px solid var(--ember);border-radius:6px;padding:2px 6px;background:var(--panel)}
+.bars{flex:1;min-width:0;display:grid;gap:4px}
+.bar{position:relative;height:14px;background:var(--panel);border:1px solid var(--line);border-radius:3px;overflow:hidden}
+.bar i{position:absolute;inset:0 0 0 auto;width:100%;background:var(--hp);transition:width .12s}
+.bar.xp{height:7px}.bar.xp i{background:var(--xp)}
+.bar span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-variant-numeric:tabular-nums;text-shadow:0 1px 2px #000}
+.hud-r{display:flex;align-items:center;gap:8px}
+.chip{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:4px 9px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.chip b{color:var(--gold)}
+.chip.pot b{color:#ff6b6b}
+kbd{font-family:var(--font-body);font-size:11px;background:#0006;border:1px solid var(--line);border-radius:3px;padding:0 5px;color:var(--dim);font-weight:700}
+button.chip{border:1px solid var(--line)}button.chip:hover{border-color:var(--ember)}
+.btn{background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:5px 12px;font-weight:700;position:relative}
+.btn:hover{border-color:var(--ember)}
+.btn.primary{background:var(--ember);color:#1a0d05;border-color:var(--ember2);font-family:var(--font-display);font-size:18px;padding:9px 26px}
+.btn.primary:hover{background:var(--ember2)}
+.badge{position:absolute;top:-6px;inset-inline-start:-6px;background:var(--good);color:#06240a;border-radius:99px;min-width:18px;height:18px;font-size:11px;display:flex;align-items:center;justify-content:center;font-weight:800;animation:pulse 1.2s infinite}
+@keyframes pulse{50%{transform:scale(1.2)}}
+#obj{flex-basis:100%;font-size:13px;color:#d8c9b3;display:flex;gap:8px;align-items:center;text-shadow:0 1px 3px #000}
+#obj b{color:var(--ember2);font-weight:700}
+#stage{position:absolute;inset:0}
+#view{position:absolute;inset:0;background:#000;overflow:hidden}
+#cv{display:block;width:100%;height:100%;image-rendering:pixelated}
+#bossbar{position:absolute;top:86px;inset-inline:18%;text-align:center;font-family:var(--font-display);font-size:13px;color:#ffd9b8}
+#bossbar .bar{height:10px;margin-top:2px;border-color:#6a2a1a}
+#bossbar .bar i{background:linear-gradient(90deg,#ff3b1f,#ff9a3a)}
+#toasts{position:absolute;top:64px;inset-inline:0;display:flex;flex-direction:column;align-items:center;gap:4px;pointer-events:none}
+.toast{background:#000b;border:1px solid var(--line);border-inline-start:4px solid var(--c0);padding:5px 12px;border-radius:4px;font-size:13px;font-weight:700;animation:tin .25s,tout .4s 2.5s forwards;max-width:92%}
+@keyframes tin{from{opacity:0;transform:translateY(-8px)}}
+@keyframes tout{to{opacity:0;transform:translateY(-6px)}}
+.toast.big{font-family:var(--font-display);font-size:17px;padding:8px 18px;box-shadow:0 0 24px var(--tc,transparent)}
+.ov{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#0009;z-index:5;text-align:center;padding:16px}
+.ov[hidden]{display:none}
+.ov .card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:20px 22px;max-width:420px;display:grid;gap:12px;justify-items:center}
+.ov h1{font-family:var(--font-display);font-size:34px;margin:0;color:var(--ember2);letter-spacing:.02em;text-shadow:0 0 22px #ff7a2f66}
+.ov h2{font-family:var(--font-display);font-size:24px;margin:0;color:var(--ember2)}
+.ov p{margin:0;color:var(--dim);line-height:1.7}
+.keys{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:13px;text-align:start;color:var(--dim)}
+.keys kbd{font-family:var(--font-body);background:var(--panel2);border:1px solid var(--line);border-radius:4px;padding:0 6px;color:var(--ink);font-weight:700}
+#title{background:radial-gradient(ellipse at 50% 120%,#7a2a0c 0%,#1a0d08 55%,#0b0807 100%)}
+#title .card{background:transparent;border:0}
+#dlg{position:absolute;inset-inline:10px;bottom:10px;background:#120e0dee;border:2px solid var(--ember);border-radius:6px;padding:10px 14px;cursor:pointer;z-index:4}
+#dlg[hidden]{display:none}
+#dwho{font-family:var(--font-display);color:var(--ember2);font-size:15px;margin-bottom:2px}
+#dtxt{line-height:1.7;font-size:14px}
+#dnext{color:var(--dim);font-size:11px;text-align:end;margin-top:2px}
+#touch{position:absolute;inset-inline:0;bottom:0;z-index:3;display:none;direction:ltr;justify-content:space-between;align-items:center;gap:12px;padding:12px 16px calc(14px + env(safe-area-inset-bottom,0px));pointer-events:none}
+#touch>*{pointer-events:auto}
+#tAct[hidden]{display:none}
+@media (pointer:coarse){#touch{display:flex}#dlg{bottom:150px}}
+#stick{width:116px;height:116px;border-radius:50%;background:#ffffff0d;border:2px solid var(--line);position:relative;touch-action:none}
+#thumb{position:absolute;left:50%;top:50%;width:48px;height:48px;margin:-24px 0 0 -24px;border-radius:50%;background:#ff7a2f88;border:2px solid var(--ember2)}
+.tbtns{display:flex;gap:10px;align-items:center}
+.tb{width:62px;height:62px;border-radius:50%;background:var(--panel2);border:2px solid var(--line);font-family:var(--font-display);font-weight:700;font-size:15px;touch-action:none}
+.tb.atk{width:78px;height:78px;background:#ff7a2f33;border-color:var(--ember);color:var(--ember2);font-size:17px}
+.tb:active{transform:scale(.94);background:#ff7a2f55}
+#title{background:linear-gradient(#000a,#000d 60%,#000f)}
+.logo{font-family:var(--font-display);font-weight:700;font-size:clamp(44px,9vw,84px);line-height:1;margin:0;color:var(--ember2);text-shadow:0 0 30px #ff7a2f99,0 4px 0 #6a2a0c}
+.sub{color:var(--dim);letter-spacing:.12em;font-size:14px;margin:0 0 10px}
+.menu{display:grid;gap:9px;width:min(300px,82vw)}
+.mbtn{font-family:var(--font-display);font-weight:500;font-size:19px;padding:11px 16px;background:var(--panel2);border:1px solid var(--line);border-radius:6px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.mbtn:hover,.mbtn:focus-visible{border-color:var(--ember);background:#33261f}
+.mbtn.main{background:var(--ember);color:#1a0d05;border-color:var(--ember2);font-weight:700;font-size:22px}
+.mbtn.main:hover{background:var(--ember2)}
+.mbtn small{font-family:var(--font-body);font-size:12px;opacity:.7}
+.ov .card.wide{max-width:520px;width:100%}
+#pause,#help{background:#000b}
+#help{z-index:8}
+#cv{cursor:crosshair}
+#mm{position:absolute;top:92px;inset-inline-start:12px;z-index:3;border:2px solid var(--line);background:#000a;border-radius:4px;image-rendering:pixelated;width:150px;height:auto;pointer-events:none}
+.bar.dashbar{height:5px}.bar.dashbar i{background:#7aa7ff}
+.set{display:grid;grid-template-columns:1fr auto;gap:10px 14px;align-items:center;text-align:start;width:100%;font-size:14px}
+.set input[type=range]{width:150px;accent-color:var(--ember)}
+.seg{display:flex;gap:4px}.seg button{background:var(--panel2);border:1px solid var(--line);border-radius:5px;padding:4px 12px;font-weight:700}
+.seg button.on{background:var(--ember);color:#1a0d05;border-color:var(--ember2)}
+.tg{width:44px;height:24px;border-radius:99px;background:var(--panel2);border:1px solid var(--line);position:relative;padding:0}
+.tg::after{content:"";position:absolute;top:2px;inset-inline-start:2px;width:18px;height:18px;border-radius:50%;background:var(--dim);transition:inset .15s}
+.tg.on{background:#ff7a2f55;border-color:var(--ember)}.tg.on::after{inset-inline-start:22px;background:var(--ember2)}
+#settings{z-index:8;background:#000b}
+@media (max-width:560px){#mm{width:104px;top:104px}}
+body{direction:rtl}
+/* hud v2: player card top-left, dialog near eye level, cinematic */
+#hud{direction:ltr;align-items:flex-start;padding:12px 16px 26px}
+.hud-l{flex:0 1 340px;gap:16px}
+.portrait{position:relative;width:66px;height:66px;flex:none;border:3px solid var(--ember2);border-radius:9px;background:radial-gradient(circle at 50% 30%,#4a3426,#1a1210);box-shadow:0 0 0 2px #000,0 6px 16px #000b,inset 0 0 14px #000a}
+.portrait canvas{width:100%;height:100%;display:block;image-rendering:pixelated;border-radius:6px}
+.portrait .lvl{position:absolute;right:-10px;bottom:-10px;min-width:0;width:28px;height:28px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:15px;background:#1a1210;border:2px solid var(--ember2)}
+.hud-l .bars{gap:5px}
+.hud-l .bar{height:18px;border-radius:5px;border-color:#000;background:#000a;box-shadow:0 0 0 1px var(--line)}
+.hud-l .bar.xp{height:7px}.hud-l .bar.dashbar{height:5px}
+.hud-l .bar i{inset:0 auto 0 0;border-radius:4px}
+.hud-l .bar:first-child i{background:linear-gradient(#ff6a58,#b8261c)}
+.hud-r{direction:rtl}
+#obj{position:absolute;top:96px;left:16px;flex:none;max-width:min(360px,70vw);direction:rtl;text-align:right;background:#000a;border-inline-end:3px solid var(--ember);padding:5px 10px;border-radius:4px;font-size:13px}
+#mm{top:72px}
+#dlg{inset-inline:0;margin-inline:auto;width:min(680px,calc(100% - 28px));top:21%;bottom:auto}
+#cine{position:absolute;inset:0;z-index:7;pointer-events:none}
+#cine .bar-t,#cine .bar-b{position:absolute;inset-inline:0;height:11%;background:#000;animation:bars 1.4s ease-out}
+#cine .bar-t{top:0}#cine .bar-b{bottom:0}
+@keyframes bars{from{height:0}}
+#ccap{position:absolute;inset-inline:0;top:33%;text-align:center;padding:0 8%;font-family:var(--font-display);font-size:clamp(20px,3.4vw,34px);line-height:1.7;color:#fff3dc;text-shadow:0 2px 12px #000,0 0 30px #000;opacity:0}
+#ccap.in{animation:cap 5s ease both}
+@keyframes cap{0%{opacity:0;transform:translateY(10px)}14%,80%{opacity:1;transform:none}100%{opacity:0}}
+#cskip{position:absolute;top:calc(11% + 12px);inset-inline-end:16px;pointer-events:auto}
+#fade{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none;transition:opacity 1s;z-index:9}
+#fade.on{opacity:1}
+/* inventory */
+#inv{position:fixed;inset:0;background:#000c;z-index:20;display:flex;align-items:center;justify-content:center;padding:12px}
+#inv[hidden]{display:none}
+.invbox{background:var(--panel);border:1px solid var(--line);border-radius:10px;width:min(920px,100%);max-height:100%;display:flex;flex-direction:column;overflow:hidden}
+.invh{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.invh h2{margin:0;font-family:var(--font-display);font-size:22px;color:var(--ember2)}
+.sumrow{display:flex;gap:6px;flex-wrap:wrap;font-size:12px}
+.sumrow span{background:var(--panel2);border-radius:4px;padding:2px 8px;white-space:nowrap}
+.sumrow b{color:var(--ember2);font-variant-numeric:tabular-nums}
+.invbody{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);gap:12px;padding:12px 14px;overflow:auto;min-height:0}
+@media (max-width:640px){.invbody{grid-template-columns:minmax(0,1fr)}}
+.invbody h3{margin:0 0 6px;font-size:12px;letter-spacing:.06em;color:var(--dim);font-weight:700}
+.eqgrid{display:grid;gap:6px}
+.baggrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:6px}
+.it{display:grid;grid-template-columns:26px 1fr;gap:2px 6px;align-items:center;text-align:start;background:var(--panel2);border:1px solid var(--rc,var(--line));border-radius:6px;padding:6px 8px;position:relative;min-width:0}
+.it svg{width:26px;height:26px;color:var(--rc,var(--c0));grid-row:span 2}
+.it .n{font-weight:700;font-size:13px;color:var(--rc);line-height:1.2;overflow-wrap:anywhere}
+.it .m{font-size:11px;color:var(--dim);font-variant-numeric:tabular-nums}
+.it.sel{box-shadow:0 0 0 2px var(--ember2)}
+.it .up{position:absolute;top:3px;inset-inline-end:5px;color:var(--good);font-size:11px;font-weight:800}
+.it.empty{border-style:dashed;color:var(--dim);font-size:12px;display:block;text-align:center;padding:10px}
+.ico{width:26px;height:26px;image-rendering:pixelated;grid-row:span 2;filter:drop-shadow(0 0 3px var(--rc,#0000))}
+.goodrow{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;background:var(--panel2);border:1px solid var(--rc,var(--line));border-radius:8px;padding:8px 10px;text-align:start}
+.goodrow:not(:has(.ico)){grid-template-columns:1fr auto}
+.goodrow .ico{width:34px;height:34px;grid-row:auto}
+.gd{display:grid;gap:1px;min-width:0}.gd b{font-size:14px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+#prompt{position:absolute;bottom:22%;inset-inline:0;margin-inline:auto;width:max-content;background:#000c;border:1px solid var(--ember);border-radius:99px;padding:5px 14px;font-weight:700;z-index:3;pointer-events:none;font-size:14px}
+.r0{--rc:var(--c0)}.r1{--rc:var(--c1)}.r2{--rc:var(--c2)}.r3{--rc:var(--c3)}
+.r3.it{background:linear-gradient(180deg,#ffb02e1a,var(--panel2))}
+#detail{grid-column:1/-1;background:var(--panel2);border:1px solid var(--rc,var(--line));border-radius:8px;padding:10px 12px;display:grid;gap:4px;min-height:96px}
+#detail .dn{font-family:var(--font-display);font-size:19px;color:var(--rc)}
+#detail .dl{font-size:13px;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.up{color:var(--good)}.dn2{color:var(--bad)}
+.dact{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap}
+.hint{color:var(--dim);font-size:13px}
+@media (prefers-reduced-motion:reduce){.badge,.toast{animation:none}}
+
+/* polish v6 */
+#skillbtn{position:relative;overflow:hidden;opacity:.85}
+#skillbtn i{position:absolute;inset:auto 0 0 auto;height:3px;background:#ffb067;width:0}
+#skillbtn.ready{opacity:1;border-color:var(--ember);box-shadow:0 0 12px #ff7a2f66}
+.ov .card{background:linear-gradient(180deg,#2a211c,#161110);border:1px solid #5a4030;box-shadow:inset 0 0 0 1px #000,inset 0 1px 0 #ffffff10,0 24px 70px #000d,0 0 0 3px #0008;border-radius:12px;position:relative}
+.ov .card::before{content:"";position:absolute;inset:6px;border:1px solid #ff7a2f22;border-radius:8px;pointer-events:none}
+#title{background:radial-gradient(ellipse at 50% 110%,#8a3010aa 0%,#1a0d08cc 50%,#050303 100%)}
+#title .card{background:transparent;border:0;box-shadow:none}
+#title .card::before{display:none}
+.logo{background:linear-gradient(#fff3d0,#ffb067 45%,#ff6a1f);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 22px #ff7a2f88) drop-shadow(0 4px 0 #6a2a0c);animation:flo 5s ease-in-out infinite}
+@keyframes flo{50%{transform:translateY(-4px);filter:drop-shadow(0 0 34px #ff7a2fcc) drop-shadow(0 4px 0 #6a2a0c)}}
+.sub{display:flex;gap:10px;align-items:center;justify-content:center}
+.sub::before,.sub::after{content:"";width:46px;height:1px;background:linear-gradient(90deg,transparent,#ff7a2f)}
+.sub::after{transform:scaleX(-1)}
+.mbtn{position:relative;overflow:hidden;transition:transform .15s,background .15s,border-color .15s;animation:mi .5s both}
+.mbtn:nth-child(2){animation-delay:.07s}.mbtn:nth-child(3){animation-delay:.14s}.mbtn:nth-child(4){animation-delay:.21s}.mbtn:nth-child(5){animation-delay:.28s}.mbtn:nth-child(6){animation-delay:.35s}
+@keyframes mi{from{opacity:0;transform:translateY(10px)}}
+.mbtn::before{content:"";position:absolute;inset-block:0;inset-inline-start:0;width:3px;background:var(--ember);transform:scaleY(0);transition:transform .15s}
+.mbtn:hover,.mbtn:focus-visible{transform:translateX(-4px)}.mbtn:hover::before,.mbtn:focus-visible::before{transform:scaleY(1)}
+.mbtn.main{box-shadow:0 0 22px #ff7a2f55}
+.invbox{background:linear-gradient(180deg,#2a211c,#151010);box-shadow:0 30px 80px #000d,0 0 0 3px #0008}
+.it{transition:transform .12s,box-shadow .12s}.it:hover{transform:translateY(-2px)}
+.r2.it{background:linear-gradient(180deg,#b872ff14,var(--panel2))}.r1.it{background:linear-gradient(180deg,#4aa3ff10,var(--panel2))}
+.toast{backdrop-filter:blur(2px)}
+#cine .bar-t,#cine .bar-b{height:12%}
+#ccap{font-size:clamp(20px,3.2vw,32px);top:38%;text-shadow:0 2px 14px #000,0 0 40px #000}
+
+/* ---- v7: right-docked luxury menus ---- */
+#title,#pause,#help,#settings{justify-content:flex-start;align-items:stretch;padding:0;text-align:start}
+#title .card,#pause .card,#help .card,#settings .card{height:100%;max-width:none;width:min(430px,94vw);border-radius:0;justify-items:stretch;align-content:center;gap:16px;padding:30px 36px;
+ background:linear-gradient(270deg,#0d0807f2 0%,#1a100bee 70%,#1a100b99 100%);border:0;border-inline-start:0;border-inline-end:1px solid #c8903a66;box-shadow:-30px 0 80px #000c,inset -1px 0 0 #ffd88a22;backdrop-filter:blur(6px)}
+#title .card::before,#pause .card::before,#help .card::before,#settings .card::before{display:block;inset:14px;border:1px solid #c8903a33;border-radius:4px}
+#title .card::after,#pause .card::after,#help .card::after,#settings .card::after{content:"";position:absolute;inset-inline-end:0;top:12%;bottom:12%;width:3px;background:linear-gradient(transparent,#ffc66a,transparent);opacity:.8}
+#title{background:linear-gradient(270deg,#000e 0,#0008 45%,#0003 100%),radial-gradient(ellipse at 20% 100%,#8a3010aa 0%,transparent 60%)}
+#title .logo{font-size:clamp(40px,6vw,64px);text-align:start;margin-bottom:2px}
+#title .sub{letter-spacing:.3em;color:#c8903a;font-size:13px;margin-bottom:10px;text-transform:uppercase;border-bottom:1px solid #c8903a44;padding-bottom:12px}
+#title .menu,#pause .menu{width:100%}
+.mbtn{background:linear-gradient(270deg,#2a1c14,#1a110c);border:1px solid #5a4030;border-radius:3px;letter-spacing:.02em;padding:12px 18px}
+.mbtn.main{background:linear-gradient(270deg,#ffb067,#ff7a2f);color:#2a1205;border-color:#ffd88a}
+.mbtn:hover,.mbtn:focus-visible{transform:translateX(6px);border-color:#ffc66a;background:linear-gradient(270deg,#3a2618,#241610)}
+.mbtn.main:hover{background:linear-gradient(270deg,#ffd098,#ff8a3a)}
+@media(max-width:560px){#title .card,#pause .card,#help .card,#settings .card{width:100%;padding:22px}}
+
+/* ---- v8: co-op ---- */
+#coop{z-index:9;justify-content:flex-start;align-items:stretch;padding:0;text-align:start;background:linear-gradient(270deg,#000e 0,#0006 55%,#0002 100%)}
+#coop .card{height:100%;max-width:none;width:min(440px,94vw);border-radius:0;justify-items:stretch;align-content:center;gap:12px;padding:26px 34px;background:linear-gradient(270deg,#0d0807,#1a100b);border:0;border-inline-end:1px solid #c8903a66;box-shadow:-30px 0 80px #000c;overflow:auto}
+#coop .fld{display:grid;gap:5px;color:#c8903a;font-size:13px}
+#coop input{background:#120c09;border:1px solid #5a4030;border-radius:3px;color:#f1e7d6;font:inherit;font-size:17px;padding:10px 12px;width:100%;outline:none}
+#coop input:focus{border-color:#ffc66a;box-shadow:0 0 0 2px #ff7a2f33}
+#coop .joinrow{display:grid;grid-template-columns:1fr auto;gap:8px}
+#coop .joinrow input{text-transform:uppercase;letter-spacing:.3em;text-align:center}
+.codebox{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;background:#120c09;border:1px dashed #c8903a88;border-radius:6px;padding:10px 14px}
+.codebox span{color:#a69784;font-size:12px}.codebox b{font-family:var(--font-display);font-size:38px;letter-spacing:.25em;color:#ffd88a;text-shadow:0 0 18px #ff7a2f88;text-align:center}
+.coopb{border-color:#4fb5a3!important}.coopb small{color:#7affd0;opacity:1}
+#party{position:absolute;left:12px;top:158px;z-index:3;min-width:132px;background:#150e0bd8;border:1px solid #4fb5a3aa;border-radius:6px;padding:6px 9px;display:grid;gap:4px;pointer-events:none}
+#party.dn{border-color:#ff6b5e;animation:dnp 1s infinite}@keyframes dnp{50%{background:#3a1410d8}}
+#party .pn{display:flex;justify-content:space-between;gap:10px;font-size:12px}#party .pn b{color:#7affd0}#party .pn span{color:#a69784}
+#party .bar{height:7px}#party .bar i{background:linear-gradient(#e86a5c,#b02a20);display:block;height:100%}
+#ctools{position:absolute;left:12px;top:216px;z-index:3;display:flex;gap:6px;flex-wrap:wrap;max-width:230px}
+#qchat{display:grid;grid-template-columns:1fr 1fr;gap:5px;width:100%;margin-top:2px}
+#qchat button{background:#150e0bf0;border:1px solid #4fb5a3aa;border-radius:5px;color:#f1e7d6;padding:6px 9px;font:inherit;font-size:12px;cursor:pointer}#qchat button:hover{background:#243a36}
+#downbar{position:absolute;top:70px;inset-inline:0;margin:auto;width:max-content;max-width:90%;z-index:4;background:#3a1410ee;border:1px solid #ff6b5e;color:#ffd0c8;border-radius:6px;padding:8px 16px;font-size:15px;pointer-events:none}
+#coop textarea{background:#120c09;border:1px solid #5a4030;border-radius:3px;color:#d8cdb8;font:12px/1.4 monospace;padding:8px;width:100%;resize:none;direction:ltr;outline:none}#coop textarea:focus{border-color:#ffc66a}
+
+#cv{filter:saturate(1.1) contrast(1.05)}
+#tcv{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;display:block}
+/* ---- v13: mobile / compact layout ---- */
+@supports (height:100dvh){html,body{height:100dvh}#inv{height:100dvh;bottom:auto}}
+#title .card,#pause .card,#help .card,#settings .card,#coop .card,.invbody,.ov{touch-action:pan-y;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+#title .card,#pause .card,#help .card,#settings .card,#coop .card{overflow-y:auto;align-content:safe center}
+@media (max-width:700px),(max-height:520px){
+ #hud{padding:6px 8px 12px;gap:4px 8px}
+ .hud-l{flex:1 1 0;min-width:0;gap:12px;max-width:230px}
+ .portrait{width:44px;height:44px;border-width:2px}
+ .portrait .lvl{width:20px;height:20px;font-size:11px;right:-7px;bottom:-7px}
+ .hud-l .bar{height:14px}.hud-l .bar span{font-size:10px}
+ .hud-r{display:grid;grid-template-columns:auto auto;gap:4px;justify-content:end}
+ .hud-r .chip,.hud-r .btn{padding:3px 8px;font-size:12px}
+ .hud-r kbd{display:none}
+ #obj{position:static;flex-basis:100%;max-width:none;width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px;padding:3px 8px;display:block}
+ #mm{width:84px;top:98px;inset-inline-start:8px}
+ #party{left:8px;top:98px;min-width:96px;max-width:130px;padding:4px 7px}#party .pn{font-size:11px}
+ #ctools{left:8px;top:138px;max-width:150px}
+ #toasts{top:98px;pointer-events:none}.toast{font-size:12px;padding:4px 10px}
+ #bossbar{top:98px;inset-inline:14%}
+ #downbar{top:98px}
+ #dlg{top:98px!important;width:calc(100% - 16px)!important;padding:8px 12px}#dtxt{font-size:13px;line-height:1.55}
+ #title .card,#pause .card,#help .card,#settings .card,#coop .card{padding:18px 18px;gap:10px;width:min(430px,100%)}
+ .mbtn{padding:10px 14px}
+ #title .logo{font-size:clamp(32px,9vw,48px)}
+ .invh{padding:8px 10px}.invh h2{font-size:18px}.invbody{padding:8px 10px;gap:8px}
+ .baggrid{grid-template-columns:repeat(auto-fill,minmax(96px,1fr))}
+}
+@media (pointer:coarse){
+ #skillbtn,#potbtn{display:none}
+ #touch{padding:6px 10px calc(10px + env(safe-area-inset-bottom,0px))}
+ #prompt{bottom:168px}
+ #stick{width:104px;height:104px}
+ .tbtns{display:grid;grid-template-columns:repeat(3,50px);grid-template-rows:50px 58px;gap:8px;align-items:center;justify-items:center}
+ .tb{width:50px;height:50px;font-size:12px;padding:0}
+ #tAct{grid-area:1/1}#tSkill{grid-area:1/2}#tDash{grid-area:1/3}#tPot{grid-area:2/2}
+ #tAtk{grid-area:2/3;width:62px;height:62px;font-size:14px}
+ #tAct[hidden]{display:none}
+ #dlg{bottom:auto}
+}
+@media (pointer:coarse) and (max-height:520px){
+ #touch{padding:4px 12px calc(6px + env(safe-area-inset-bottom,0px))}
+ .tbtns{grid-template-columns:repeat(4,48px);grid-template-rows:1fr;gap:8px}
+ #tAct{grid-area:1/1}#tSkill{grid-area:1/2}#tDash{grid-area:1/3}#tPot{grid-area:1/4}
+ #tAtk{grid-area:auto;width:62px;height:62px}
+ .tbtns{grid-template-columns:repeat(5,auto)}
+ #tAtk{grid-column:5;grid-row:1}
+ #stick{width:92px;height:92px}
+ #prompt{bottom:110px}
+ #ctools{top:90px}
+}
+
+/* ---- story mode ---- */
+#stHud{position:absolute;top:10px;right:12px;z-index:3;max-width:min(380px,66vw);text-align:right;background:#000a;border-inline-end:3px solid #7ad0ff;border-radius:4px;padding:6px 12px;pointer-events:none;display:grid;gap:2px}
+#stHn{font-family:var(--font-display);color:#ffd9a0;font-size:15px}#stHo{font-size:13px;color:#e8dcc8;line-height:1.5}#stHm{font-size:12px;color:#7ad0ff}
+#stBtns{position:absolute;top:10px;left:12px;z-index:3;display:flex;gap:8px}
+#stBtns .chip{font-size:13px}
+.jn{background:#1a1210;border:1px solid #3b2f28;border-radius:6px;padding:8px 12px;margin:8px 0;text-align:start}.jn b{color:#ffb067;font-size:13px}.jn p{margin:4px 0 0;color:#e8dcc8;line-height:1.7;font-size:14px}.jn.mm{border-color:#2a6a8a}.jn.mm b{color:#7ad0ff}
+body.story #mm,body.story #potbtn,body.story #skillbtn{display:none!important}
+body.story #pBag,body.story #pCoop,body.story #pRestart,body.story #pCode,body.story #pLeave{display:none}
+body.story .tb:not(#tAct){display:none!important}
+body.story #tAct{display:block;width:70px;height:70px;font-size:16px}
+body.story.ch2 #tDash{display:block!important;width:62px;height:62px;font-size:13px}
+#songPad{position:absolute;left:50%;transform:translateX(-50%);bottom:10px;z-index:6;display:flex;gap:10px;direction:ltr}
+#songPad[hidden]{display:none}
+.sgb{width:64px;height:64px;border-radius:50%;background:#0008;border:3px solid var(--c);color:var(--c);font:700 18px var(--font-display);touch-action:none;box-shadow:0 0 14px var(--c)}
+.sgb:active{background:var(--c);color:#000}
+@media (pointer:fine){#songPad{display:none!important}}
+body.song #touch,body.song #prompt,body.song #tAct{display:none!important}
+body.story.em #tSkill,body.story.em #tDash{display:block!important;width:62px;height:62px;font-size:13px}
+#tDash.on{background:#7ad0ff55;border-color:#7ad0ff}
+@media (pointer:coarse){body.story .tbtns{display:flex;justify-content:flex-end}body.story #stHud{top:54px}body.story #prompt{bottom:130px}}
+@media (max-width:700px),(max-height:520px){#stHud{max-width:calc(100% - 24px);padding:5px 10px}#stHo{font-size:12px}#stBtns{top:6px;left:8px}}
+@media (max-width:700px) and (pointer:coarse){#stHud{top:50px}}
+
+/* ---- main menu: stairs ---- */
+#title .card{overflow:auto;gap:12px}
+.stairs{gap:7px}.stairs>*{box-sizing:border-box}
+.stairs>.mbtn,.stairs>.more{width:calc(100% - var(--in,0px));margin-inline-start:var(--in,0px)}
+.stairs .s0{--in:0px}.stairs .s1{--in:22px}.stairs .s2{--in:44px}.stairs .s3{--in:66px}
+.stairs>.mbtn{font-size:17px;padding:10px 16px;border-inline-start:5px solid #8a5a34;box-shadow:-5px 5px 0 #0007}
+.stairs>.mbtn.main{font-size:23px;padding:16px 18px;border-inline-start-color:#fff1c8;box-shadow:-5px 5px 0 #0007,0 0 26px #ff7a2f66}
+.stairs>.mbtn.sub{font-size:14px;padding:7px 14px;opacity:.9}
+.stairs .coopb{border-inline-start-color:#5ee0c0}
+.stairs .more{border:1px dashed #5a4030;border-radius:3px;padding:2px 10px}
+.stairs .more summary{cursor:pointer;color:#c8a070;font-size:14px;padding:8px 0;list-style:none}
+.stairs .more summary::after{content:' ▾';opacity:.7}.stairs .more[open] summary::after{content:' ▴'}
+.stairs .more .mbtn{margin:0 0 7px;font-size:15px;padding:8px 12px;width:100%}
+.stairs .tools{display:flex;gap:6px;margin-top:8px;padding-top:12px;border-top:1px solid #c8903a33}
+.stairs .tools .mbtn{flex:1;font-size:12.5px;padding:9px 4px;justify-content:center;text-align:center;min-width:0;border-radius:3px}
+.stairs .tools .mbtn:hover{transform:translateY(-2px)}
+@media(max-width:560px){.stairs .s1{--in:14px}.stairs .s2{--in:28px}.stairs .s3{--in:42px}.stairs>.mbtn.main{font-size:20px;padding:13px 14px}}
+@media(max-height:560px){#title .logo{font-size:34px}.stairs>.mbtn.main{padding:10px 14px;font-size:19px}.stairs>.mbtn{padding:7px 12px;font-size:15px}.stairs{gap:5px}#title .sub{margin-bottom:4px;padding-bottom:6px}}
+
+/* قوائم تتّسع للشاشات القصيرة (جوال أفقي) وتتمرّر باللمس */
+#title .card,#pause .card,#help .card,#settings .card{overflow-y:auto;touch-action:pan-y;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+@media (max-height:520px){
+ #title .card,#pause .card,#help .card,#settings .card{gap:6px;padding:10px 22px;align-content:start}
+ #title .logo{font-size:clamp(24px,8vh,36px)!important;line-height:1.15}
+ #title .sub{display:none}
+ #title .mbtn,#pause .mbtn,#settings .mbtn,#help .mbtn{padding:6px 12px!important;min-height:0!important;font-size:14px!important}
+ #title .mbtn small,#pause .mbtn small{display:none}
+ #pause h2,#settings h2,#help h2{margin:0 0 2px;font-size:20px}
+}
+</style>
+
+<div id="app">
+  <header id="hud" hidden>
+    <div class="hud-l">
+      <div class="portrait"><canvas id="face" width="14" height="14"></canvas><div class="lvl" id="lvl">1</div></div>
+      <div class="bars">
+        <div class="bar"><i id="hpf"></i><span id="hpt"></span></div>
+        <div class="bar xp"><i id="xpf"></i></div>
+        <div class="bar xp dashbar" title="الدحرجة"><i id="dashf"></i></div>
+      </div>
+    </div>
+    <div class="hud-r">
+      <div class="chip">ذهب <b id="gold">0</b></div>
+      <div class="chip">شظايا <b id="shards">0/5</b></div>
+      <button class="chip pot" id="potbtn" type="button">جرعات <kbd>Q</kbd> <b id="pots">1</b></button>
+      <button class="chip" id="skillbtn" type="button">هبّة الجمر <kbd>R</kbd><i id="skillf"></i></button>
+      <button class="btn" id="bagbtn" type="button">الحقيبة <kbd>I</kbd><span class="badge" id="badge" hidden>0</span></button>
+      <button class="btn" id="menubtn" type="button">القائمة <kbd>Esc</kbd></button>
+    </div>
+    <div id="obj"></div>
+  </header>
+  <main id="stage">
+    <div id="view">
+      <canvas id="cv"></canvas><canvas id="tcv"></canvas>
+      <div id="party" hidden><div class="pn"><b id="pName"></b><span id="pLv"></span></div><div class="bar"><i id="pHp"></i></div></div>
+      <div id="ctools" hidden><button class="chip" id="cPing" type="button">إشارة <kbd>G</kbd></button><button class="chip" id="cChat" type="button">رسالة <kbd>1-6</kbd></button>
+        <div id="qchat" hidden><button type="button">ساعدني!</button><button type="button">تعال هنا</button><button type="button">احذر!</button><button type="button">شكرًا يا بطل</button><button type="button">أحييني!</button><button type="button">ممتاز!</button></div></div>
+      <div id="downbar" hidden></div>
+      <div id="bossbar" hidden><div id="bossn">ملك الرماد</div><div class="bar"><i id="bossf"></i></div></div>
+      <div id="songPad" hidden></div>
+      <div id="stHud" hidden><div id="stHn"></div><div id="stHo"></div><div id="stHm"></div></div>
+      <div id="stBtns" hidden><button class="chip" id="stJb" type="button">الدفتر <kbd>J</kbd></button><button class="chip" id="stPb" type="button">إيقاف</button></div>
+      <div id="toasts"></div>
+      <canvas id="mm" width="128" height="80"></canvas>
+      <div id="cine" hidden><div class="bar-t"></div><div class="bar-b"></div><div id="ccap"></div><button class="btn" id="cskip" type="button">تخطي <kbd>Esc</kbd></button></div>
+      <div id="fade"></div>
+      <div id="dlg" hidden><div id="dwho"></div><div id="dtxt"></div><div id="dnext">مسطرة أو Enter أو كليك للمتابعة</div></div>
+      <div class="ov" id="title">
+        <div class="card">
+          <h1 class="logo">أسطورة الجمر</h1>
+          <p class="sub">حملة من خمسة فصول</p>
+          <div class="menu stairs">
+            <button class="mbtn main s0" id="emBtn" type="button">جمر الأعماق <small>طور القصة · قلعة الجمر</small></button>
+            <button class="mbtn s0 sub" id="emCont" type="button" hidden>كمّل جمر الأعماق <small id="emInfo"></small></button>
+            <button class="mbtn s1" id="startbtn" type="button">الحملة الأصلية <small>لعبة جديدة · Enter</small></button>
+            <button class="mbtn s1 sub" id="contBtn" type="button" hidden>كمّل المغامرة <small id="contInfo"></small></button>
+            <button class="mbtn coopb s2" id="coopbtn" type="button">اللعب الجماعي <small>لاعبين</small></button>
+            <details class="more s3"><summary>قصص أخرى</summary>
+              <button class="mbtn" id="storyBtn" type="button">الغدير الصامت <small>الفصل الأول</small></button>
+              <button class="mbtn" id="storyCont" type="button" hidden>كمّل القصة <small id="storyInfo"></small></button>
+              <button class="mbtn" id="story2Btn" type="button" hidden>صدى الرمل <small>الفصل الثاني</small></button>
+            </details>
+            <div class="tools">
+              <button class="mbtn" id="helpbtn" type="button">طريقة اللعب</button>
+              <button class="mbtn" id="setbtn" type="button">الإعدادات</button>
+              <button class="mbtn" id="fsbtn" type="button">ملء الشاشة</button>
+              <button class="mbtn mutebtn" type="button">الصوت: يعمل</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="ov" id="stJ" hidden><div class="card" style="max-width:520px;width:100%;max-height:100%;overflow:auto;touch-action:pan-y"><h2>دفتر راشد</h2><div id="stJl"></div><button class="btn" id="stJc" type="button">إغلاق</button></div></div>
+      <div class="ov" id="stCh" hidden><div class="card" style="max-width:520px;width:100%"><p id="stChT" style="font-size:18px;color:#f1e7d6"></p><div id="stChB" class="menu" style="display:grid;gap:8px;width:100%"></div></div></div>
+      <div class="ov" id="coop" hidden>
+        <div class="card">
+          <h2>اللعب الجماعي</h2>
+          <p class="hint">العب مع صديقك في نفس العالم: كل واحد له غنائمه، تحيون بعض، وتتواصلون بإشارات ورسائل سريعة.</p>
+          <label class="fld">اسمك في اللعبة<input id="cName" maxlength="14" autocomplete="off" placeholder="مثلاً: صقر"></label>
+          <div id="cHome" class="menu">
+            <button class="mbtn" id="dHostBtn" type="button">اتصال يدوي: أنا المضيف <small>احتياطي</small></button>
+            <button class="mbtn" id="dGuestBtn" type="button">اتصال يدوي: أنا الضيف</button>
+            <button class="mbtn main acct" id="cCreate" type="button">إنشاء غرفة بكود <small>الأسهل</small></button>
+            <div class="joinrow acct"><input id="cCode" maxlength="6" autocomplete="off" placeholder="كود الغرفة" dir="ltr"><button class="mbtn" id="cJoin" type="button">انضمام</button></div>
+          </div>
+          <div id="cDirect" hidden>
+            <p class="hint">اتصال مباشر بين جهازيكم بدون حساب ولا سيرفر: تتبادلون نصّين عبر واتساب أو ديسكورد.</p>
+            <div id="dHost" hidden>
+              <label class="fld">١) أرسل هذا النص لصديقك<textarea id="dOffer" readonly rows="3"></textarea></label><button class="mbtn" id="dCopyOffer" type="button">نسخ النص</button>
+              <label class="fld">٣) الصق رد صديقك هنا<textarea id="dAnsIn" rows="3"></textarea></label><button class="mbtn main" id="dConnect" type="button">اتصال</button>
+            </div>
+            <div id="dGuest" hidden>
+              <label class="fld">١) الصق نص المضيف<textarea id="dOfferIn" rows="3"></textarea></label><button class="mbtn main" id="dMake" type="button">إنشاء الرد</button>
+              <label class="fld">٢) أرسل هذا الرد للمضيف<textarea id="dAns" readonly rows="3"></textarea></label><button class="mbtn" id="dCopyAns" type="button">نسخ الرد</button>
+            </div>
+            <button class="mbtn" id="dBack" type="button">رجوع</button>
+          </div>
+          <div id="cHost" hidden>
+            <div class="codebox"><span>كود الغرفة</span><b id="cCodeBig" dir="ltr">----</b><button class="mbtn" id="cCopy" type="button">نسخ</button></div>
+            <p class="hint">أعطِ صديقك الكود، وشاركه رابط اللعبة من زر المشاركة بصلاحية «مساهم». يقدر ينضم في أي وقت أثناء اللعب.</p>
+            <div class="menu">
+              <button class="mbtn main" id="cNew" type="button">لعبة جديدة بالغرفة</button>
+              <button class="mbtn" id="cCont" type="button">كمّل مغامرتي بالغرفة</button>
+              <button class="mbtn" id="cBackGame" type="button">ارجع للعبة</button>
+              <button class="mbtn" id="cLeaveRoom" type="button">أغلق الغرفة</button>
+            </div>
+          </div>
+          <div id="cGuestWait" hidden><p class="hint">متصل بالغرفة. أول ما يبدأ المضيف اللعب تنزل عنده تلقائيًا.</p></div>
+          <p id="cStatus" class="hint"></p>
+          <button class="mbtn" id="cBack" type="button">رجوع</button>
+        </div>
+      </div>
+      <div class="ov" id="pause" hidden>
+        <div class="card">
+          <h2>متوقف</h2>
+          <div class="menu">
+            <button class="mbtn main" id="resumeBtn" type="button">كمّل اللعب <small>Esc</small></button>
+            <button class="mbtn" id="pBag" type="button">الحقيبة والمعدات <small>I</small></button>
+            <button class="mbtn" id="pHelp" type="button">طريقة اللعب</button>
+            <button class="mbtn" id="pSet" type="button">الإعدادات</button>
+            <button class="mbtn" id="pFs" type="button">ملء الشاشة <small>F</small></button>
+            <button class="mbtn mutebtn" type="button">الصوت: يعمل</button>
+            <button class="mbtn coopb" id="pCoop" type="button">اللعب الجماعي</button>
+            <p id="pCode" class="hint" hidden></p>
+            <button class="mbtn" id="pLeave" type="button" hidden>غادر الغرفة والقائمة الرئيسية</button>
+            <button class="mbtn" id="pRestart" type="button">ابدأ من جديد</button>
+            <button class="mbtn" id="pMenu" type="button">القائمة الرئيسية</button>
+          </div>
+        </div>
+      </div>
+      <div class="ov" id="help" hidden>
+        <div class="card wide">
+          <h2>طريقة اللعب</h2>
+          <div class="keys">
+            <span><kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> أو الأسهم</span><span>حركة (تشتغل مع الكيبورد العربي والإنجليزي)</span>
+            <span><kbd>مسطرة</kbd> أو <kbd>J</kbd> أو كليك</span><span>ضربة (الماوس يصوّب الضربة باتجاه المؤشر)</span>
+            <span><kbd>Shift</kbd></span><span>دحرجة سريعة تتفادى فيها الضرر</span>
+            <span><kbd>Q</kbd></span><span>جرعة شفاء (لها فترة انتظار)</span>
+            <span><kbd>G</kbd> · <kbd>1</kbd>-<kbd>6</kbd></span><span>جماعي: إشارة على الخريطة · رسائل سريعة. اضغط E مطولاً قرب شريكك الساقط لإحيائه</span>
+            <span><kbd>R</kbd></span><span>هبّة الجمر: موجة تضرب وتصعق القريبين وتمحو المقذوفات (كل 8 ثوانٍ)</span>
+            <span><kbd>E</kbd></span><span>تفاعل: نار المعسكر (استراحة) · التاجر ياقوت</span>
+            <span><kbd>I</kbd> أو <kbd>Tab</kbd></span><span>الحقيبة والمعدات</span>
+            <span><kbd>F</kbd></span><span>ملء الشاشة</span>
+            <span>يد التحكم</span><span>عصا = حركة · A ضرب · B دحرجة · X جرعة · Y حقيبة · Start قائمة</span>
+            <span><kbd>Esc</kbd></span><span>القائمة</span>
+          </div>
+          <p>اقتل الوحوش وافتح الصناديق، والبس الأقوى من الأسلحة والدروع. الأقواس والعصي تضرب من بعيد (صوّب بالماوس). نار المعسكر تعالجك لكن الوحوش ترجع. كل فصل فيه ثلاث مناطق وقائد وسط الطريق وزعيم في آخره. اقتل العدد المطلوب لكسر الختم، استرح عند نار المعسكر، وواجه الزعيم.</p>
+          <button class="btn primary" id="helpClose" type="button">رجوع</button>
+        </div>
+      </div>
+      <div class="ov" id="settings" hidden>
+        <div class="card wide">
+          <h2>الإعدادات</h2>
+          <div class="set">
+            <label for="sMusic">الموسيقى</label><input id="sMusic" type="range" min="0" max="100">
+            <label for="sSfx">المؤثرات</label><input id="sSfx" type="range" min="0" max="100">
+            <span>الصعوبة <small style="color:var(--dim)">(الوحوش تتغير مع اللعبة الجديدة)</small></span>
+            <div class="seg" id="sDiff"><button type="button" data-d="0">سهل</button><button type="button" data-d="1">عادي</button><button type="button" data-d="2">صعب</button></div>
+            <span>الرسوميات <small style="color:var(--dim)">(فائقة للكمبيوتر · خفيفة للجوال)</small></span>
+            <div class="seg" id="sQ"><button type="button" data-q="0">تلقائي</button><button type="button" data-q="4">فائقة</button><button type="button" data-q="1">عالية</button><button type="button" data-q="2">متوسطة</button><button type="button" data-q="3">خفيفة</button></div>
+            <span>اهتزاز الشاشة</span><button class="tg" id="sShake" type="button" aria-label="اهتزاز الشاشة"></button>
+            <span>أرقام الضرر</span><button class="tg" id="sDmg" type="button" aria-label="أرقام الضرر"></button>
+            <span>الخريطة الصغيرة</span><button class="tg" id="sMap" type="button" aria-label="الخريطة الصغيرة"></button>
+          </div>
+          <button class="btn primary" id="setClose" type="button">رجوع</button>
+        </div>
+      </div>
+      <div class="ov" id="dead" hidden>
+        <div class="card"><h2>سقطت في الرماد</h2><p id="deadMsg">سقطت.</p><p class="hint">ترجع عند آخر نار معسكر وتخسر ربع الذهب.</p><button class="btn primary" id="reviveBtn" type="button">قم من جديد</button></div>
+      </div>
+      <div class="ov" id="end" hidden>
+        <div class="card wide"><h2 id="endTitle">انتهى الفصل</h2><p id="endsum"></p><p id="endTxt"></p><div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center"><button class="btn primary" id="nextBtn" type="button">الفصل التالي</button><button class="btn" id="endBag" type="button">الحقيبة</button><button class="btn" id="endMenu" type="button">القائمة</button></div></div>
+      </div>
+      <div class="ov" id="card" hidden style="background:#000d;pointer-events:none"><div><div id="cardSub" class="sub"></div><h1 class="logo" id="cardT" style="font-size:clamp(34px,7vw,64px)"></h1></div></div>
+      <div class="ov" id="shop" hidden>
+        <div class="card wide" style="max-height:92%;overflow:auto;width:100%">
+          <h2>ياقوت التاجر</h2><p class="hint">معك <b style="color:var(--gold)" id="shopGold">0</b> ذهب</p>
+          <div id="shopGoods" style="width:100%;display:grid;gap:6px"></div>
+          <button class="btn primary" id="shopClose" type="button">رجوع</button>
+        </div>
+      </div>
+      <div id="prompt" hidden><kbd>E</kbd> <span id="promptT"></span></div>
+</div>
+  </main>
+  <div id="touch">
+    <div id="stick"><div id="thumb"></div></div>
+    <div class="tbtns">
+      <button class="tb" id="tAct" type="button" hidden>E</button>
+      <button class="tb" id="tSkill" type="button">هبّة</button>
+      <button class="tb" id="tDash" type="button">دحرجة</button>
+      <button class="tb" id="tPot" type="button">جرعة</button>
+      <button class="tb atk" id="tAtk" type="button">اضرب</button>
+    </div>
+  </div>
+</div>
+
+<div id="inv" hidden>
+  <div class="invbox">
+    <div class="invh">
+      <h2>الحقيبة</h2>
+      <div class="sumrow" id="sum"></div>
+      <div style="display:flex;gap:8px"><button class="btn" id="autoEq" type="button">البس الأفضل</button><button class="btn" id="sellBtn" type="button">بيع الأضعف</button><button class="btn" id="invClose" type="button">إغلاق</button></div>
+    </div>
+    <div class="invbody">
+      <div><h3>ملبوس الآن</h3><div class="eqgrid" id="eqg"></div></div>
+      <div><h3 id="bagh">الحقيبة</h3><div class="baggrid" id="bagg"></div></div>
+      <div id="detail"></div>
+    </div>
+  </div>
+</div>
