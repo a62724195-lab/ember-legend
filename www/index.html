@@ -4569,15 +4569,15 @@ function hdHud(){const R=EM,m=R.m,lowE=R.E<22;
   if(lowE){ctx.fillStyle=`rgba(120,10,0,${(1-R.E/22)*.3*(.6+.4*Math.sin(R.t*8))})`;ctx.fillRect(0,0,W,H)}
   if(ST.flash>0){ctx.globalAlpha=Math.min(1,ST.flash);ctx.fillStyle=ST.flashC||'#fff';ctx.fillRect(0,0,W,H);ctx.globalAlpha=1}
   /* minimap */
-  {const ms=m.w>50?2:3,ox=8,oy=34;ctx.globalAlpha=.8;
+  if(!PH.on){const ms=m.w>50?2:3,ox=8,oy=34;ctx.globalAlpha=.8;
     for(let y=0;y<m.h;y++)for(let x=0;x<m.w;x++)if(R.seen[y][x]){const c=m.g[y][x];ctx.fillStyle=c==='.'?'#6a5a3c':c==='X'?'#ffd890':c==='V'?'#ff8a30':c==='B'?'#9a9088':c==='L'?'#c4410d':c==='H'?'#ff4a2a':c==='P'?'#4a4038':c==='C'?'#a07040':c==='G'?'#6a6a7a':c==='M'?'#9ad0ff':'#2a2218';ctx.fillRect(ox+x*ms,oy+y*ms,ms,ms)}
     m.items.forEach(i=>{if(i.gone||!R.seen[Math.floor(i.y)]||!R.seen[Math.floor(i.y)][Math.floor(i.x)])return;if(i.k==='shard'||i.k==='altar'||i.k==='relic'||(i.k==='puzzle'&&!i.solved)){ctx.fillStyle=i.k==='puzzle'?'#9affc0':'#ffd24a';ctx.fillRect(ox+Math.floor(i.x)*ms,oy+Math.floor(i.y)*ms,ms,ms)}else if(i.k==='brazier'&&i.lit){ctx.fillStyle='#ff8a30';ctx.fillRect(ox+Math.floor(i.x)*ms,oy+Math.floor(i.y)*ms,ms,ms)}});
     ctx.fillStyle='#fff';ctx.fillRect(ox+R.x*ms-1,oy+R.y*ms-1,3,3);ctx.globalAlpha=1}
   /* ember bar */
-  {const bw=140,bx=W/2-bw/2,by=H-14;ctx.fillStyle='rgba(0,0,0,.6)';ctx.fillRect(bx-2,by-2,bw+4,9);const g2=ctx.createLinearGradient(bx,0,bx+bw,0);g2.addColorStop(0,lowE?'#8a1a0a':'#c24a14');g2.addColorStop(1,lowE?'#ff4a2a':'#ffd070');ctx.fillStyle=g2;ctx.fillRect(bx,by,bw*R.E/100,5);ctx.fillStyle='#ffffff30';ctx.fillRect(bx,by,bw*R.E/100,1);
+  if(!PH.on){const bw=140,bx=W/2-bw/2,by=H-14;ctx.fillStyle='rgba(0,0,0,.6)';ctx.fillRect(bx-2,by-2,bw+4,9);const g2=ctx.createLinearGradient(bx,0,bx+bw,0);g2.addColorStop(0,lowE?'#8a1a0a':'#c24a14');g2.addColorStop(1,lowE?'#ff4a2a':'#ffd070');ctx.fillStyle=g2;ctx.fillRect(bx,by,bw*R.E/100,5);ctx.fillStyle='#ffffff30';ctx.fillRect(bx,by,bw*R.E/100,1);
     ctx.fillStyle='#ffb060';ctx.beginPath();ctx.moveTo(bx-9,by+6);ctx.quadraticCurveTo(bx-14,by-2,bx-8,by-8);ctx.quadraticCurveTo(bx-6,by-3,bx-3,by-4);ctx.quadraticCurveTo(bx-2,by+2,bx-3,by+6);ctx.closePath();ctx.fill()}
-  if(R.bs&&!R.bs.dead&&!R.bs.intro){const B=R.bs,bw=150,bx=W/2-bw/2,nm=HD_BOSS[B.k].name;ctx.fillStyle='rgba(0,0,0,.65)';ctx.fillRect(bx-2,10,bw+4,9);ctx.fillStyle=B.flash>0?'#fff':(B.k==='emp'?'#c01a2a':'#a8321a');ctx.fillRect(bx,12,bw*B.hp/B.max,5);for(let i=1;i<B.max;i++){ctx.fillStyle='rgba(0,0,0,.6)';ctx.fillRect(bx+bw*i/B.max-.5,12,1,5)}tctx.globalAlpha=.95;TX(nm,W/2,32,'#ff8a60',11,'center');tctx.globalAlpha=1}
-  if(R.hp){const bw=120,bx=W/2-bw/2;ctx.fillStyle='rgba(0,0,0,.6)';ctx.fillRect(bx-2,10,bw+4,8);ctx.fillStyle=R.hp.open?'#ffe9a0':'#a82a1a';ctx.fillRect(bx,12,bw*R.hp.hp/5,4);tctx.globalAlpha=.9;TX('قلب الرماد',W/2,32,'#ff8a60',11,'center');tctx.globalAlpha=1}
+  if(!PH.on&&R.bs&&!R.bs.dead&&!R.bs.intro){const B=R.bs,bw=150,bx=W/2-bw/2,nm=HD_BOSS[B.k].name;ctx.fillStyle='rgba(0,0,0,.65)';ctx.fillRect(bx-2,10,bw+4,9);ctx.fillStyle=B.flash>0?'#fff':(B.k==='emp'?'#c01a2a':'#a8321a');ctx.fillRect(bx,12,bw*B.hp/B.max,5);for(let i=1;i<B.max;i++){ctx.fillStyle='rgba(0,0,0,.6)';ctx.fillRect(bx+bw*i/B.max-.5,12,1,5)}tctx.globalAlpha=.95;TX(nm,W/2,32,'#ff8a60',11,'center');tctx.globalAlpha=1}
+  if(!PH.on&&R.hp){const bw=120,bx=W/2-bw/2;ctx.fillStyle='rgba(0,0,0,.6)';ctx.fillRect(bx-2,10,bw+4,8);ctx.fillStyle=R.hp.open?'#ffe9a0':'#a82a1a';ctx.fillRect(bx,12,bw*R.hp.hp/5,4);tctx.globalAlpha=.9;TX('قلب الرماد',W/2,32,'#ff8a60',11,'center');tctx.globalAlpha=1}
   ST.wh.forEach(w=>{if(w.t<0)return;const kk=w.t/w.life,a=Math.sin(kk*Math.PI);tctx.globalAlpha=a*.85;TX(w.txt,w.x+Math.sin(w.t*2)*3,w.y-w.t*4,'#ffb89a',12);tctx.globalAlpha=1});
   const wk=R.en.find(e=>e.k==='weeper'&&e.fz);if(wk){tctx.globalAlpha=.7;TX('جمرتك توقفه',W/2,H*.2,'#ffd890',11,'center');tctx.globalAlpha=1}}
 window.__hd={HD,EM,hdCine,hdBuild,hdFrame,emStart,emLoad,emUpdate,emFlare,emInteract,emWin,hdIntroShots,hdEndShots,ST};
@@ -5461,7 +5461,7 @@ function inKey(e){if(!INTR.on)return;e.stopPropagation();e.preventDefault();if(e
 /* =====================================================================
    التحديث من داخل اللعبة: يفحص آخر إصدار على GitHub ويعرض زر "حدّث الآن"
    ===================================================================== */
-const APP_VERSION='1.6.0';
+const APP_VERSION='1.7.0';
 const UPD={repo:'a62724195-lab/ember-legend',info:null,busy:0,dismissed:0,checking:0,pct:0,err:''};
 (function(){
 const st=document.createElement('style');st.textContent=`
@@ -5710,6 +5710,121 @@ const _emInt=emInteract;emInteract=function(){const R=EM,n=R.near;
   return _emInt.apply(this,arguments)};
 /* سالم يلمّح */
 try{HD_TOPICS.push({id:'secret',q:'في أسرار هنا؟',ok:e=>e.lv>=1&&!e.endless,lines:()=>[['سالم','الجدران يا ولدي ليست كلها صمّاء. ألقِ وهجك عليها... بعضها يتشقق ويفتح.'],['سالم','وسمعت أن في المكتبة غرفة خلف الرفوف الجنوبية، فيها شاب ما نام من أيام... لا تسألني.']]})}catch(e){}
+/* =====================================================================
+   الراحة: اهتزاز الجوال · وضع التصوير/البثّ · وضع اليد الواحدة
+   ===================================================================== */
+const PH={on:0,frozen:0,cfg:Object.assign({hap:1,one:0},store.get('ember_comfort')||{})};
+function phSave(){store.set('ember_comfort',PH.cfg)}
+/* ---- الاهتزاز ---- */
+let _vibT=0;function vib(p){if(!PH.cfg.hap||!navigator.vibrate)return;const n=performance.now();if(n-_vibT<45)return;_vibT=n;try{navigator.vibrate(p)}catch(e){}}
+[['saFlare',[22,30,40]],['saChime',12],['saDoor',[30,40,30]],['saCaught',[110,50,200]],['saIgnite',18],['saLampOff',14]].forEach(([n,p])=>{try{const o=eval(n);eval(n+'=function(){vib('+JSON.stringify(p)+');return o.apply(this,arguments)}')}catch(e){console.warn('hap',n,e)}});
+try{const o=saBoom;saBoom=function(v){vib(Math.round(30+30*Math.min(1.5,v||1)));return o.apply(this,arguments)}}catch(e){}
+try{const o=emDash;emDash=function(){const b=EM.dashT>0;const r=o.apply(this,arguments);if(!b&&EM.dashT>0)vib(16);return r}}catch(e){}
+try{const o=emThrow;emThrow=function(){const b=!!EM.jm;const r=o.apply(this,arguments);if(!b&&EM.jm)vib(12);return r}}catch(e){}
+try{const o=hdBossHurt;hdBossHurt=function(){vib([50,30,70]);return o.apply(this,arguments)}}catch(e){}
+try{const o=emDie;emDie=function(){vib([120,60,220]);return o.apply(this,arguments)}}catch(e){}
+/* ---- وضع التصوير ---- */
+(function(){const st=document.createElement('style');st.textContent=`
+html body.photo #hud,html body.photo #stHud,html body.photo #stBtns,html body.photo #toasts,html body.photo #prompt,html body.photo #touch,html body.photo #embBadge,html body.photo #mm,html body.photo #obj,html body.photo #updBn{display:none!important}
+#phBar{position:fixed;top:calc(8px + env(safe-area-inset-top,0px));inset-inline-start:8px;z-index:60;display:flex;gap:6px;direction:rtl;opacity:.9;transition:opacity .5s}
+#phBar[hidden]{display:none}#phBar.dim{opacity:.18}
+#phBar button{font:inherit;font-size:13px;cursor:pointer;background:rgba(20,12,8,.82);color:#f2dcc0;border:1px solid #6a3c1c;border-radius:10px;padding:7px 11px}
+#phBar button.on{background:#ff9a40;color:#2a1206;border-color:#ffd9a0}
+#phFl{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:70;transition:opacity .35s}`;document.head.appendChild(st);
+  const b=document.createElement('div');b.id='phBar';b.hidden=true;b.innerHTML='<button id="phX" type="button">✕ خروج</button><button id="phS" type="button">📷 حفظ صورة</button><button id="phF" type="button">❄ تجميد</button>';document.body.appendChild(b);
+  const fl=document.createElement('div');fl.id='phFl';document.body.appendChild(fl);
+  let dimT=0;const wake=()=>{b.classList.remove('dim');clearTimeout(dimT);dimT=setTimeout(()=>b.classList.add('dim'),3000)};
+  window.phSet=function(on){PH.on=on?1:0;if(!on)PH.frozen=0;document.body.classList.toggle('photo',!!on);b.hidden=!on;$('#phF').classList.toggle('on',!!PH.frozen);$('#phF').textContent=PH.frozen?'▶ تحرير':'❄ تجميد';if(on){['#pause','#settings'].forEach(s=>{const e=$(s);if(e&&!e.hidden)e.hidden=true});if(state==='pause')state='story';wake();toast&&0}};
+  b.addEventListener('pointerdown',e=>e.stopPropagation());addEventListener('pointerdown',()=>{if(PH.on)wake()},true);
+  $('#phX').onclick=()=>phSet(0);
+  $('#phF').onclick=()=>{if(!ST.emOn)return;PH.frozen=!PH.frozen;$('#phF').classList.toggle('on',!!PH.frozen);$('#phF').textContent=PH.frozen?'▶ تحرير':'❄ تجميد'};
+  $('#phS').onclick=()=>{try{const c=document.createElement('canvas');c.width=cv.width;c.height=cv.height;const q=c.getContext('2d');q.drawImage(cv,0,0);q.drawImage(tcv,0,0,c.width,c.height);
+    c.toBlob(bl=>{const a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download='ember-legend-'+Date.now()+'.png';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500)},'image/png');
+    fl.style.opacity=.85;setTimeout(()=>fl.style.opacity=0,120)}catch(e){console.warn(e)}};
+  addEventListener('keydown',e=>{const t=e.target&&e.target.tagName;if(t==='INPUT'||t==='TEXTAREA')return;
+    if(e.key==='Escape'&&PH.on){e.stopPropagation();e.preventDefault();phSet(0);return}
+    if((e.key==='p'||e.key==='P')&&(state==='story'||state==='play')&&!e.ctrlKey&&!e.metaKey){e.preventDefault();phSet(!PH.on)}},true);
+})();
+/* خفي الواجهة المرسومة بالكانفس */
+const _emUpPH=emUpdate;emUpdate=function(dt){if(PH.frozen)return;return _emUpPH.apply(this,arguments)};
+/* ---- وضع اليد الواحدة ---- */
+function oneApply(){const m=PH.cfg.one;
+  if(!m){const pv=store.get('ember_ctl_prev');if(CTL.cfg&&CTL.cfg._one){CTL.cfg=pv||null;CTL.cfg?store.set('ember_ctl',CTL.cfg):store.del('ember_ctl');ctlApply();ctlInit&&0}return}
+  if(CTL.cfg&&!CTL.cfg._one)store.set('ember_ctl_prev',CTL.cfg);
+  const L=innerWidth>innerHeight*1.15,P=L?{stick:[.82,.72],tAct:[.60,.50],tSkill:[.62,.80],tDash:[.74,.44],tPot:[.46,.66],tAtk:[.50,.88]}:{stick:[.78,.84],tAct:[.52,.64],tSkill:[.52,.86],tDash:[.80,.62],tPot:[.28,.74],tAtk:[.30,.9]};
+  CTL.cfg={ss:.88,bs:1.05,op:.92,pos:{},_one:1};CTL.ids.forEach(id=>{const p=P[id];CTL.cfg.pos[id]={x:m===2?1-p[0]:p[0],y:p[1]}});ctlSave();ctlApply()}
+/* ---- أزرار الإعدادات ---- */
+(function(){const set=document.querySelector('#settings .set');if(!set)return;
+  const row=(lbl,node)=>{const s=document.createElement('span');s.innerHTML=lbl;set.appendChild(s);set.appendChild(node)};
+  const hb=document.createElement('button');hb.type='button';hb.className='tg';hb.setAttribute('aria-label','اهتزاز الجوال');hb.classList.toggle('on',!!PH.cfg.hap);hb.onclick=()=>{PH.cfg.hap=PH.cfg.hap?0:1;hb.classList.toggle('on',!!PH.cfg.hap);phSave();if(PH.cfg.hap){_vibT=0;vib([30,40,30])}};
+  row('اهتزاز الجوال <small style="color:var(--dim)">(للجوال فقط)</small>',hb);
+  const sg=document.createElement('div');sg.className='seg';sg.innerHTML='<button type="button" data-o="0">إيقاف</button><button type="button" data-o="1">يمين</button><button type="button" data-o="2">يسار</button>';
+  const sync=()=>sg.querySelectorAll('button').forEach(x=>x.classList.toggle('on',+x.dataset.o===PH.cfg.one));
+  sg.querySelectorAll('button').forEach(x=>x.onclick=()=>{PH.cfg.one=+x.dataset.o;phSave();sync();oneApply()});sync();
+  row('وضع اليد الواحدة <small style="color:var(--dim)">(كل الأزرار قرب إبهامك)</small>',sg);
+  const pb=document.createElement('button');pb.type='button';pb.className='mbtn';pb.textContent='وضع التصوير والبث (P)';pb.onclick=()=>phSet(1);
+  const ps=$('#pSet');if(ps&&ps.parentNode)ps.parentNode.insertBefore(pb.cloneNode(true),ps.nextSibling).onclick=()=>phSet(1);
+  const sc=$('#setClose');if(sc&&sc.parentNode)sc.parentNode.insertBefore(pb,sc)})();
+setTimeout(()=>{if(PH.cfg.one)oneApply()},400);
+Object.assign(window.__hd||{},{PH,phSet,vib,oneApply});
+/* =====================================================================
+   الإعلان الرسمي (تليرر): يعمل من داخل اللعبة بمحرّكها الحقيقي — زر في القائمة، أو ?trailer
+   ===================================================================== */
+const TRL={on:0};
+(function(){const st=document.createElement('style');st.textContent=`
+#trl{position:fixed;inset:0;z-index:9000;pointer-events:auto;direction:rtl;font-family:var(--font-display,'Reem Kufi','Tajawal',system-ui,sans-serif);color:#fff0c8;overflow:hidden}
+#trl[hidden]{display:none}
+#trl .tb1,#trl .tb2{position:absolute;inset-inline:0;height:11%;background:#000;z-index:2}#trl .tb1{top:0}#trl .tb2{bottom:0}
+#trT{position:absolute;inset-inline:0;top:50%;transform:translateY(-50%);text-align:center;z-index:3;pointer-events:none;opacity:0}
+#trT b{display:block;font-size:min(13vw,11vh);line-height:1.15;letter-spacing:.02em;text-shadow:0 0 22px #ff7a20,0 0 60px #c02a00,0 4px 0 #000}
+#trT small{display:block;margin-top:.5em;font-size:min(4.4vw,3.6vh);color:#ffb060;letter-spacing:.14em;text-shadow:0 2px 8px #000}
+#trT.go{animation:trIn var(--d,2.6s) ease-out forwards}
+@keyframes trIn{0%{opacity:0;transform:translateY(-50%) scale(1.14);filter:blur(8px)}14%{opacity:1;transform:translateY(-50%) scale(1);filter:blur(0)}80%{opacity:1}100%{opacity:0;transform:translateY(-50%) scale(.97)}}
+#trT.hit{animation:trHit var(--d,1.2s) ease-out forwards}
+@keyframes trHit{0%{opacity:0;transform:translateY(-50%) scale(1.7)}10%{opacity:1;transform:translateY(-50%) scale(1)}80%{opacity:1}100%{opacity:0}}
+#trEnd{position:absolute;inset:0;z-index:4;display:none;flex-direction:column;align-items:center;justify-content:center;gap:1.2vh;text-align:center;background:radial-gradient(ellipse at 50% 60%,#4a1606cc,#000 72%);opacity:0;transition:opacity 1.4s}
+#trEnd.show{display:flex;opacity:1}
+#trEnd img{width:min(22vh,30vw);border-radius:50%;box-shadow:0 0 40px #ff7a2088}
+#trEnd .a{font-size:min(4.2vh,5vw);color:#ffb060;letter-spacing:.1em}
+#trEnd .b{font-size:min(11vh,13vw);line-height:1.1;text-shadow:0 0 26px #ff7a20,0 0 70px #c02a00}
+#trEnd .c{font-size:min(4.6vh,5.4vw);color:#ffe4b0}
+#trEnd .d{font-size:min(3.4vh,4vw);color:#e8c898;direction:ltr}
+#trSk{position:absolute;top:calc(12% + 8px);inset-inline-end:12px;z-index:5;font-size:12px;color:#c9a070;opacity:.6}
+html body.trailer #touch,html body.trailer #stHud,html body.trailer #stBtns,html body.trailer #toasts,html body.trailer #prompt,html body.trailer #updBn,html body.trailer #embBadge,html body.trailer #hud,html body.trailer #card,html body.trailer #cskip,html body.trailer #ccap{display:none!important}`;document.head.appendChild(st);
+  const d=document.createElement('div');d.id='trl';d.hidden=true;d.innerHTML='<div class="tb1"></div><div class="tb2"></div><div id="trT"></div><div id="trEnd"><img alt=""><div class="a">شربكلي · تقدّم</div><div class="b">أسطورة الجمر</div><div class="c">متاحة الآن · مجاناً</div><div class="d">Windows · Android</div><div class="d">YouTube · @ASk-o7i3v</div></div><div id="trSk">اضغط للتخطي</div>';document.body.appendChild(d);
+  d.addEventListener('click',()=>trExit());})();
+const _svT=emSaveProg;emSaveProg=function(){if(EM.trailer)return;return _svT.apply(this,arguments)};
+function trText(big,small,sec,hit){const t=$('#trT');t.className='';void t.offsetWidth;t.innerHTML='<b>'+big+'</b>'+(small?'<small>'+small+'</small>':'');t.style.setProperty('--d',sec+'s');t.className=hit?'hit':'go'}
+/* صوت */
+const tr_hit=(v)=>{inNoise(.7,2400,140,1,.55*(v||1),'lowpass');inTone(70,28,1.1,'sine',.8*(v||1));inTone(140,50,.4,'triangle',.25*(v||1))};
+const tr_beat=(d)=>{inTone(62,38,.28,'sine',.55,d);inTone(55,34,.3,'sine',.42,d+.24)};
+function trShots(){const R=()=>EM,L=(n,f)=>()=>{EM.trailer=1;emLoad(n);f&&f()};const ring=(x,y)=>{EM.x=x;EM.y=y;EM.ring=.001};
+ const mont=(lv,w,h,txt,sub,col,note)=>({d:1.45,w,hero:h,fl:[.55,col],on:()=>{EM.trailer=1;emLoad(lv);ring(h[2],h[3]);trText(txt,sub,1.3,1);tr_hit(.9);inBell(note,.25,1.2)}});
+ return[
+ {d:4.2,v:{dark:1},on:()=>{TRL.t0=1;inDrone();for(let i=0;i<5;i++)tr_beat(.4+i*(.95-i*.09));trText('قبل الضوء…','',3.6)}},
+ {d:3.2,v:{dark:1},on:()=>{tr_hit(1.1);trText('كان الجمر.','',2.8,1)}},
+ {d:5.6,w:[7,24,1.7,15,22.5,1.25],hero:[5.5,25.5,12,25.5,'r',0],fi:1.1,on:()=>{EM.trailer=1;emLoad(0);trText('قلعة ابتلعها الرماد','',3.2);inBell(220,.3,3)}},
+ {d:5,w:[12,22.5,1.5,22,19,1.1],hero:[9,23.5,19,22,'r',0],on:()=>{EM.trailer=1;emLoad(1);trText('ألغاز تنحني لها الأضواء','',3.2);inBell(261.6,.3,3);inNoise(2,300,2500,2,.12,'bandpass')}},
+ {d:4.6,w:[9,26,1.45,22,24.5,1.1],hero:[6,26.5,18,26.5,'r',0],on:()=>{EM.trailer=1;emLoad(2);trText('وظلال تطارد الدفء','',3.2);inBell(196,.3,3);tr_beat(0);tr_beat(.6)}},
+ mont(5,[9,31,1.5,12,29,1.1],[6.5,32.5,10,31,'r',0],'وهج','يكشف المخفيّ','#ffe0a0',329.6),
+ mont(3,[27.5,29,1.5,27.5,25,1.1],[27.5,31.5,27.5,26.5,'u',0],'اندفاع','أسرع من الظلّ','#c58bff',392),
+ mont(4,[18.5,24,1.5,18.5,20,1.1],[18.5,26.5,18.5,22,'u',0],'جامور','يعود إلى يدك','#ffd24a',440),
+ mont(6,[20.5,23,1.5,20.5,19,1.1],[20.5,25.5,20.5,21,'u',0],'جمرات خاصّة','صقيع · حياة · ظلّ · صاعقة','#7ad8ff',523.2),
+ {d:6,w:[20.5,15,1.0,20.5,9.2,1.2],hero:[20.5,19.5,20.5,12.8,'u',0],fl:[.4,'#ff6a30'],on:()=>{EM.trailer=1;emLoad(6);EM.bs&&(EM.bs.intro=0);EM.boost=9;EM.x=20.5;EM.y=15;EM.ring=.001;tr_hit(1.1);trText('حارس العرش','ردّ ناره إليه',3.6)}},
+ {d:6.4,w:[20.5,12,1.0,20.5,6.6,1.1],hero:[20.5,16,20.5,10.5,'u',0],fl:[.7,'#ff3a1a'],on:()=>{EM.trailer=1;emLoad(7);EM.bs&&(EM.bs.intro=0);EM.boost=9;EM.x=20.5;EM.y=12.5;EM.ring=.001;tr_hit(1.4);inTone(80,50,2.4,'sawtooth',.18);trText('الإمبراطور هجير','ثلاثة أطوار · ثلاث نيران',3.8)}},
+ {d:4.6,w:[11,31,1.4,20,26,1.1],hero:[8,32,17,28,'r',0],on:()=>{EM.endless=1;EM.eSeed=1234;EM.floor=1;EM.trailer=1;emLoad(11);trText('برج لا ينتهي','زعيم كل ٥ طوابق · جمرة لمن ينتصر',3.6);inBell(329.6,.3,3);tr_beat(0)}},
+ {d:7.4,v:{y0:-40,y1:-20,z0:1.5,z1:1.3,c0:1,c1:1,b0:1,b1:1,hero:[W/2-70,238,W/2-40,224]},fl:[.9,'#ffe0a0'],fi:.2,title:{t:'أسطورة الجمر',sub:'جمر الأعماق',at:1.2},on:()=>{EM.endless=0;tr_hit(1.6);[220,330,440,660].forEach((f,i)=>inBell(f,.32,4,i*.12));inNoise(3,200,3000,1.4,.18,'bandpass');$('#trT').className=''}},
+ {d:6.4,v:{dark:1},fo:1.4,on:()=>{inBell(440,.26,3);inBell(660,.2,3.5,.4);const e=$('#trEnd');e.querySelector('img').src=INTRO_IMG.badge;e.classList.add('show');$('#trSk').style.display='none'}}]}
+function trStart(){if(TRL.on||(typeof INTR!=='undefined'&&INTR.on))return;TRL.on=1;inAu();const a=INTR.au;if(a&&a.A.state==='suspended')a.A.resume().catch(()=>{});
+  EM.trailer=1;emStart(true);EM.trailer=1;HD.cine=null;ST.cin=null;$('#cine').hidden=true;$('#card').hidden=true;$('#toasts')&&($('#toasts').innerHTML='');
+  document.body.classList.add('trailer');$('#trl').hidden=false;$('#trEnd').classList.remove('show');$('#trSk').style.display='';
+  setTimeout(()=>{if(!TRL.on)return;hdCine(trShots(),()=>trExit())},60)}
+function trExit(){if(!TRL.on)return;TRL.on=0;HD.cine=null;ST.cin=null;$('#cine').hidden=true;$('#ccap').textContent='';inDroneStop(.8);EM.trailer=0;EM.endless=0;
+  document.body.classList.remove('trailer');$('#trl').hidden=true;$('#trEnd').classList.remove('show');$('#trT').className='';stExit(true)}
+addEventListener('keydown',e=>{if(TRL.on&&e.key==='Escape'){e.stopPropagation();e.preventDefault();trExit()}},true);
+(function(){const c=$('#enBtn')||$('#emCont');if(!c||!c.parentNode)return;const b=document.createElement('button');b.type='button';b.className='mbtn s1';b.id='trBtn';b.textContent='▶ شاهد الإعلان';c.parentNode.insertBefore(b,c.nextSibling);b.addEventListener('click',trStart)})();
+if(/[?&]trailer/.test(location.search))setTimeout(trStart,700);
+Object.assign(window.__hd||{},{trStart,trExit,TRL});
 })();
 </script>
 </body></html>
