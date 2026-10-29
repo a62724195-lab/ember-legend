@@ -16,7 +16,15 @@ function dlStreak(){const t=dlToday(),d=store.get('ember_daily')||{};return d.la
 /* كل المراحل في وضع اليومي تأخذ بذرة اليوم المثبّتة عند البداية (حتى لو عدى منتصف الليل أثناء اللعب) */
 const _dlHe=hdEndless;hdEndless=function(fl){if(EM.daily&&DL.seed)EM.eSeed=DL.seed;return _dlHe.apply(this,arguments)};
 const _dlStart=emStart;emStart=function(){EM.daily=DL.pend?1:0;DL.pend=0;if(EM.daily){DL.seed=dlToday().seed;dlBegin()}
-  const r=_dlStart.apply(this,arguments);if(EM.daily)showCard('التحدّي اليومي',dlToday().txt+' · الطابق 1',2400);return r};
+  const r=_dlStart.apply(this,arguments);if(EM.daily)showCard('التحدّي اليومي',dlToday().txt+' · الطابق 1',2400);
+  else if(EM.endless)dlPerks();return r};
+/* لقب وجوائز السلسلة: ٣ أيام = محاولة إضافية · ٧ أيام = جمرة عشوائية عند البداية · ١٤ يوم = الاثنتان + لقب «لهب» (للبرج العادي فقط) */
+const DL_TITLES=[[14,'لهب'],[7,'جمرة'],[3,'شرارة']];
+function dlTitle(){const s=dlStreak(),t=DL_TITLES.find(x=>s>=x[0]);return t?t[1]:''}
+function dlPerks(){const s=dlStreak(),got=[];
+  if(s>=3){EM.lives=4;got.push('محاولة إضافية')}
+  if(s>=7){const t=['blue','green','violet','gold'][Math.floor(Math.random()*4)];EM.etype=t;got.push(EMB_T[t].n)}
+  if(got.length)setTimeout(()=>toast('مكافأة سلسلتك ('+s+' أيام): '+got.join(' + '),'#ffd27a',true),2600)}
 /* رقم «أفضل طابق» للبرج العادي ما يتأثر بالتحدّي اليومي */
 const _dlLoad=emLoad;emLoad=function(){if(!EM.daily)return _dlLoad.apply(this,arguments);
   const keep=store.get('ember_endless'),r=_dlLoad.apply(this,arguments);keep?store.set('ember_endless',keep):store.del('ember_endless');dlNote(EM.floor+1);return r};
@@ -24,10 +32,19 @@ const _dlEnd=emEndRun;emEndRun=function(){if(!EM.daily)return _dlEnd.apply(this,
   setTimeout(()=>{$('#fade').classList.add('on');setTimeout(()=>{$('#fade').classList.remove('on');ST.busy=0;const d=store.get('ember_daily')||{};
     showCard('انتهى تحدّي اليوم','وصلت الطابق '+(R.floor+1)+' · أفضل رقم اليوم: '+Math.max(d.best||0,R.floor+1)+(dlStreak()>1?' · سلسلتك: '+dlStreak()+' أيام':''),4600,()=>stExit(true))},700)},450)};
 const _dlObj=emObjective;emObjective=function(){const t=_dlObj();return EM.daily?'يومي · '+t:t};
+/* مشاركة النتيجة: نص جاهز للصق (على أندرويد تفتح قائمة المشاركة) */
+function dlShareText(){const t=dlToday(),d=store.get('ember_daily')||{},s=dlStreak(),ti=dlTitle();
+  return '🔥 أسطورة الجمر · التحدّي اليومي '+t.txt+'\nوصلت الطابق '+(d.day===t.n?d.best||0:0)+(s>1?' · سلسلة '+s+' أيام':'')+(ti?' · «'+ti+'»':'')+'\nتقدر تتفوّق عليّ؟ https://github.com/'+UPD.repo+'/releases/latest'}
+async function dlShare(){const text=dlShareText();
+  try{if(navigator.share&&/Android|iPhone|iPad/i.test(navigator.userAgent)){await navigator.share({text});return}}catch(e){if(e&&e.name==='AbortError')return}
+  let ok=false;try{await navigator.clipboard.writeText(text);ok=true}catch(e){try{const a=document.createElement('textarea');a.value=text;a.style.cssText='position:fixed;opacity:0';document.body.appendChild(a);a.select();ok=document.execCommand('copy');a.remove()}catch(e2){}}
+  toast(ok?'تم نسخ نتيجتك. الصقها لأصحابك 🔥':'ما قدرت أنسخ تلقائياً','#9fe39f',true)}
 /* زر القائمة */
 function dlRefresh(){const b=$('#dlBtn');if(!b)return;const t=dlToday(),d=store.get('ember_daily')||{},s=dlStreak();
-  $('#dlInfo').textContent=(d.day===t.n&&d.best?'أفضل طابق اليوم: '+d.best:'نفس الطوابق لكل اللاعبين اليوم')+(s>1?' · 🔥'+s:'')}
+  $('#dlInfo').textContent=(d.day===t.n&&d.best?'أفضل طابق اليوم: '+d.best:'نفس الطوابق لكل اللاعبين اليوم')+(s>1?' · 🔥'+s:'')+(dlTitle()?' · '+dlTitle():'');
+  const sb=$('#dlShare');if(sb)sb.hidden=!(d.day===t.n&&d.best)}
 (function(){const c=$('#enBtn')||$('#emCont');if(!c||!c.parentNode)return;const b=document.createElement('button');b.type='button';b.className='mbtn s1';b.id='dlBtn';b.innerHTML='التحدّي اليومي <small id="dlInfo"></small>';c.parentNode.insertBefore(b,c.nextSibling);
   b.addEventListener('click',()=>{DL.pend=1;emStart(true,true)});
+  const sh=document.createElement('button');sh.type='button';sh.className='mbtn s1';sh.id='dlShare';sh.hidden=true;sh.innerHTML='شارك نتيجتك <small>انسخ نص جاهز للصق</small>';b.parentNode.insertBefore(sh,b.nextSibling);sh.addEventListener('click',dlShare);
   const old=emRefreshTitle;emRefreshTitle=function(){old();dlRefresh()};dlRefresh()})();
-Object.assign(window.__hd||{},{DL,dlToday,dlBegin,dlNote,dlStreak,dlRefresh,emDie:w=>emDie(w),emEndRun:()=>emEndRun(),emNext:()=>emNext(),emStartNow:(f,e)=>emStart(f,e)});
+Object.assign(window.__hd||{},{dlShare,dlShareText,dlTitle,dlPerks,DL,dlToday,dlBegin,dlNote,dlStreak,dlRefresh,emDie:w=>emDie(w),emEndRun:()=>emEndRun(),emNext:()=>emNext(),emStartNow:(f,e)=>emStart(f,e)});

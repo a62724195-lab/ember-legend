@@ -5461,7 +5461,7 @@ function inKey(e){if(!INTR.on)return;e.stopPropagation();e.preventDefault();if(e
 /* =====================================================================
    التحديث من داخل اللعبة: يفحص آخر إصدار على GitHub ويعرض زر "حدّث الآن"
    ===================================================================== */
-const APP_VERSION='1.8.1';
+const APP_VERSION='1.9.0';
 const UPD={repo:'a62724195-lab/ember-legend',info:null,busy:0,dismissed:0,checking:0,pct:0,err:''};
 (function(){
 const st=document.createElement('style');st.textContent=`
@@ -5785,7 +5785,15 @@ function dlStreak(){const t=dlToday(),d=store.get('ember_daily')||{};return d.la
 /* كل المراحل في وضع اليومي تأخذ بذرة اليوم المثبّتة عند البداية (حتى لو عدى منتصف الليل أثناء اللعب) */
 const _dlHe=hdEndless;hdEndless=function(fl){if(EM.daily&&DL.seed)EM.eSeed=DL.seed;return _dlHe.apply(this,arguments)};
 const _dlStart=emStart;emStart=function(){EM.daily=DL.pend?1:0;DL.pend=0;if(EM.daily){DL.seed=dlToday().seed;dlBegin()}
-  const r=_dlStart.apply(this,arguments);if(EM.daily)showCard('التحدّي اليومي',dlToday().txt+' · الطابق 1',2400);return r};
+  const r=_dlStart.apply(this,arguments);if(EM.daily)showCard('التحدّي اليومي',dlToday().txt+' · الطابق 1',2400);
+  else if(EM.endless)dlPerks();return r};
+/* لقب وجوائز السلسلة: ٣ أيام = محاولة إضافية · ٧ أيام = جمرة عشوائية عند البداية · ١٤ يوم = الاثنتان + لقب «لهب» (للبرج العادي فقط) */
+const DL_TITLES=[[14,'لهب'],[7,'جمرة'],[3,'شرارة']];
+function dlTitle(){const s=dlStreak(),t=DL_TITLES.find(x=>s>=x[0]);return t?t[1]:''}
+function dlPerks(){const s=dlStreak(),got=[];
+  if(s>=3){EM.lives=4;got.push('محاولة إضافية')}
+  if(s>=7){const t=['blue','green','violet','gold'][Math.floor(Math.random()*4)];EM.etype=t;got.push(EMB_T[t].n)}
+  if(got.length)setTimeout(()=>toast('مكافأة سلسلتك ('+s+' أيام): '+got.join(' + '),'#ffd27a',true),2600)}
 /* رقم «أفضل طابق» للبرج العادي ما يتأثر بالتحدّي اليومي */
 const _dlLoad=emLoad;emLoad=function(){if(!EM.daily)return _dlLoad.apply(this,arguments);
   const keep=store.get('ember_endless'),r=_dlLoad.apply(this,arguments);keep?store.set('ember_endless',keep):store.del('ember_endless');dlNote(EM.floor+1);return r};
@@ -5793,13 +5801,57 @@ const _dlEnd=emEndRun;emEndRun=function(){if(!EM.daily)return _dlEnd.apply(this,
   setTimeout(()=>{$('#fade').classList.add('on');setTimeout(()=>{$('#fade').classList.remove('on');ST.busy=0;const d=store.get('ember_daily')||{};
     showCard('انتهى تحدّي اليوم','وصلت الطابق '+(R.floor+1)+' · أفضل رقم اليوم: '+Math.max(d.best||0,R.floor+1)+(dlStreak()>1?' · سلسلتك: '+dlStreak()+' أيام':''),4600,()=>stExit(true))},700)},450)};
 const _dlObj=emObjective;emObjective=function(){const t=_dlObj();return EM.daily?'يومي · '+t:t};
+/* مشاركة النتيجة: نص جاهز للصق (على أندرويد تفتح قائمة المشاركة) */
+function dlShareText(){const t=dlToday(),d=store.get('ember_daily')||{},s=dlStreak(),ti=dlTitle();
+  return '🔥 أسطورة الجمر · التحدّي اليومي '+t.txt+'\nوصلت الطابق '+(d.day===t.n?d.best||0:0)+(s>1?' · سلسلة '+s+' أيام':'')+(ti?' · «'+ti+'»':'')+'\nتقدر تتفوّق عليّ؟ https://github.com/'+UPD.repo+'/releases/latest'}
+async function dlShare(){const text=dlShareText();
+  try{if(navigator.share&&/Android|iPhone|iPad/i.test(navigator.userAgent)){await navigator.share({text});return}}catch(e){if(e&&e.name==='AbortError')return}
+  let ok=false;try{await navigator.clipboard.writeText(text);ok=true}catch(e){try{const a=document.createElement('textarea');a.value=text;a.style.cssText='position:fixed;opacity:0';document.body.appendChild(a);a.select();ok=document.execCommand('copy');a.remove()}catch(e2){}}
+  toast(ok?'تم نسخ نتيجتك. الصقها لأصحابك 🔥':'ما قدرت أنسخ تلقائياً','#9fe39f',true)}
 /* زر القائمة */
 function dlRefresh(){const b=$('#dlBtn');if(!b)return;const t=dlToday(),d=store.get('ember_daily')||{},s=dlStreak();
-  $('#dlInfo').textContent=(d.day===t.n&&d.best?'أفضل طابق اليوم: '+d.best:'نفس الطوابق لكل اللاعبين اليوم')+(s>1?' · 🔥'+s:'')}
+  $('#dlInfo').textContent=(d.day===t.n&&d.best?'أفضل طابق اليوم: '+d.best:'نفس الطوابق لكل اللاعبين اليوم')+(s>1?' · 🔥'+s:'')+(dlTitle()?' · '+dlTitle():'');
+  const sb=$('#dlShare');if(sb)sb.hidden=!(d.day===t.n&&d.best)}
 (function(){const c=$('#enBtn')||$('#emCont');if(!c||!c.parentNode)return;const b=document.createElement('button');b.type='button';b.className='mbtn s1';b.id='dlBtn';b.innerHTML='التحدّي اليومي <small id="dlInfo"></small>';c.parentNode.insertBefore(b,c.nextSibling);
   b.addEventListener('click',()=>{DL.pend=1;emStart(true,true)});
+  const sh=document.createElement('button');sh.type='button';sh.className='mbtn s1';sh.id='dlShare';sh.hidden=true;sh.innerHTML='شارك نتيجتك <small>انسخ نص جاهز للصق</small>';b.parentNode.insertBefore(sh,b.nextSibling);sh.addEventListener('click',dlShare);
   const old=emRefreshTitle;emRefreshTitle=function(){old();dlRefresh()};dlRefresh()})();
-Object.assign(window.__hd||{},{DL,dlToday,dlBegin,dlNote,dlStreak,dlRefresh,emDie:w=>emDie(w),emEndRun:()=>emEndRun(),emNext:()=>emNext(),emStartNow:(f,e)=>emStart(f,e)});
+Object.assign(window.__hd||{},{dlShare,dlShareText,dlTitle,dlPerks,DL,dlToday,dlBegin,dlNote,dlStreak,dlRefresh,emDie:w=>emDie(w),emEndRun:()=>emEndRun(),emNext:()=>emNext(),emStartNow:(f,e)=>emStart(f,e)});
+/* =====================================================================
+   أوضاع البرج اللانهائي: عادي · ظلام · أسراب · حياة واحدة
+   تنطبق على البرج العادي فقط (التحدّي اليومي يبقى ثابتاً وعادلاً). لكل وضع رقم قياسي مستقل.
+   ===================================================================== */
+const MODES=[{id:'n',n:'عادي',d:'طوابق عشوائية بلا نهاية'},{id:'dark',n:'ظلام',d:'النار تخبو أسرع، لا تبقى واقف'},{id:'swarm',n:'أسراب',d:'ضعف عدد الأعداء'},{id:'one',n:'حياة واحدة',d:'محاولة واحدة فقط'}];
+const MD={cur:store.get('ember_mode')||'n'};if(!MODES.some(m=>m.id===MD.cur))MD.cur='n';
+const mdInfo=id=>MODES.find(m=>m.id===id)||MODES[0];
+const mdBestKey=id=>'ember_endless_'+id;
+/* بداية: نثبّت الوضع ونطبّق أثره على المحاولات */
+const _mdStart=emStart;emStart=function(fresh,endless){EM.mode=(endless&&!DL.pend)?MD.cur:'n';const r=_mdStart.apply(this,arguments);
+  if(EM.mode==='one')EM.lives=1;
+  if(EM.mode!=='n')setTimeout(()=>toast('وضع «'+mdInfo(EM.mode).n+'»: '+mdInfo(EM.mode).d,'#ff9a6a',true),1800);
+  return r};
+/* ظلام: تخبو النار أسرع (ما عدا ساحات الزعماء) */
+const _mdUp=emUpdate;emUpdate=function(dt){_mdUp.apply(this,arguments);const R=EM;
+  if(R.endless&&R.mode==='dark'&&!ST.cin&&!HD.cine&&R.m&&!(R.m.arena||R.m.boss)&&!ST.busy&&R.E>1)R.E=Math.max(1,R.E-.32*dt)};
+/* أسراب: كل عدو معه توأم قريب منه في خانة فاضية */
+const _mdEn=hdEndless;hdEndless=function(fl){const m=_mdEn.apply(this,arguments);
+  if(EM.endless&&EM.mode==='swarm'&&m&&!m.boss&&!m.arena&&m.en){const free=(x,y)=>m.g[Math.floor(y)]&&m.g[Math.floor(y)][Math.floor(x)]==='.';const extra=[];
+    m.en.forEach(e=>{for(const[dx,dy]of[[.9,0],[-.9,0],[0,.9],[0,-.9]])if(free(e.x+dx,e.y+dy)){extra.push({k:e.k,x:e.x+dx,y:e.y+dy,dorm:e.dorm});break}});m.en=m.en.concat(extra)}return m};
+/* رقم قياسي مستقل لكل وضع (ما نلمس رقم «عادي») */
+const _mdLoad=emLoad;emLoad=function(){if(!(EM.endless&&!EM.daily&&EM.mode&&EM.mode!=='n'))return _mdLoad.apply(this,arguments);
+  const keep=store.get('ember_endless'),r=_mdLoad.apply(this,arguments);keep?store.set('ember_endless',keep):store.del('ember_endless');
+  const k=mdBestKey(EM.mode),b=store.get(k)||{best:0};if(EM.floor+1>b.best)store.set(k,{best:EM.floor+1});return r};
+const _mdEnd=emEndRun;emEndRun=function(){if(!(EM.endless&&!EM.daily&&EM.mode&&EM.mode!=='n'))return _mdEnd.apply(this,arguments);const R=EM;if(ST.busy)return;ST.busy=1;saCaught();stFlash(.7,'#ff2a2a');ST.shake=1;
+  setTimeout(()=>{$('#fade').classList.add('on');setTimeout(()=>{$('#fade').classList.remove('on');ST.busy=0;const b=store.get(mdBestKey(R.mode))||{best:0};
+    showCard('انتهت الرحلة · '+mdInfo(R.mode).n,'وصلت الطابق '+(R.floor+1)+' · أفضل رقم بهذا الوضع: '+Math.max(b.best,R.floor+1),4400,()=>stExit(true))},700)},450)};
+const _mdObj=emObjective;emObjective=function(){const t=_mdObj();return EM.endless&&EM.mode&&EM.mode!=='n'?mdInfo(EM.mode).n+' · '+t:t};
+/* زر اختيار الوضع (ينقّل بين الأوضاع) */
+function mdRefresh(){const b=$('#mdBtn');if(!b)return;const m=mdInfo(MD.cur),best=(store.get(MD.cur==='n'?'ember_endless':mdBestKey(MD.cur))||{}).best;
+  $('#mdName').textContent=m.n;$('#mdInfo').textContent=m.d+(best?' · أفضل: '+best:'')}
+(function(){const c=$('#enBtn');if(!c||!c.parentNode)return;const b=document.createElement('button');b.type='button';b.className='mbtn s1';b.id='mdBtn';b.innerHTML='وضع البرج: <b id="mdName"></b> <small id="mdInfo"></small>';c.parentNode.insertBefore(b,c.nextSibling);
+  b.addEventListener('click',()=>{MD.cur=MODES[(MODES.findIndex(m=>m.id===MD.cur)+1)%MODES.length].id;store.set('ember_mode',MD.cur);mdRefresh()});
+  const old=emRefreshTitle;emRefreshTitle=function(){old();mdRefresh()};mdRefresh()})();
+Object.assign(window.__hd||{},{MD,MODES,mdRefresh,emUpdate:(...a)=>emUpdate(...a)});
 /* =====================================================================
    الإعلان الرسمي (تليرر): يعمل من داخل اللعبة بمحرّكها الحقيقي — زر في القائمة، أو ?trailer
    ===================================================================== */
@@ -5877,7 +5929,7 @@ function trStart(){if(TRL.on||(typeof INTR!=='undefined'&&INTR.on))return;TRL.on
 function trExit(){if(!TRL.on)return;TRL.on=0;HD.cine=null;ST.cin=null;$('#cine').hidden=true;$('#ccap').textContent='';inDroneStop(.8);EM.trailer=0;EM.endless=0;
   document.body.classList.remove('trailer');$('#trl').hidden=true;$('#trEnd').classList.remove('show');$('#trT').className='';stExit(true)}
 addEventListener('keydown',e=>{if(TRL.on&&e.key==='Escape'){e.stopPropagation();e.preventDefault();trExit()}},true);
-(function(){const c=$('#dlBtn')||$('#enBtn')||$('#emCont');if(!c||!c.parentNode)return;const b=document.createElement('button');b.type='button';b.className='mbtn s1';b.id='trBtn';b.textContent='▶ شاهد الإعلان';c.parentNode.insertBefore(b,c.nextSibling);b.addEventListener('click',trStart)})();
+(function(){const c=$('#dlShare')||$('#dlBtn')||$('#enBtn')||$('#emCont');if(!c||!c.parentNode)return;const b=document.createElement('button');b.type='button';b.className='mbtn s1';b.id='trBtn';b.textContent='▶ شاهد الإعلان';c.parentNode.insertBefore(b,c.nextSibling);b.addEventListener('click',trStart)})();
 if(/[?&]trailer/.test(location.search))setTimeout(trStart,700);
 Object.assign(window.__hd||{},{trStart,trExit,TRL});
 })();
