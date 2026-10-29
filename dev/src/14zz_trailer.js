@@ -64,7 +64,7 @@ function trShots(){let G=0;const ring=(x,y)=>{EM.x=x;EM.y=y;EM.ring=.001};
  lvl(1,11,[11,31,1.9,16,28,1.7],[8,32,16,29,'r',0],'','',0,{k:1,s:1,h:2},[.9,'#ffffff']),
  S(6,{w:[20.5,15,1.0,20.5,9.2,1.25],hero:[20.5,19.5,20.5,12.8,'u',0],fl:[.5,'#ff6a30'],m:{k:1,s:1,h:2,b:1,a:1},on:()=>{EM.trailer=1;emLoad(6);EM.bs&&(EM.bs.intro=0);EM.boost=9;EM.x=20.5;EM.y=15;EM.ring=.001;tr_hit(1.1);trText('حارس العرش','ردّ ناره إليه',2.6)}}),
  S(8,{w:[20.5,12,1.0,20.5,6.6,1.25],hero:[20.5,16,20.5,10.5,'u',0],fl:[.8,'#ff3a1a'],m:{k:1,s:1,h:2,b:1,a:1},on:()=>{EM.trailer=1;emLoad(7);EM.bs&&(EM.bs.intro=0);EM.boost=9;EM.x=20.5;EM.y=12.5;EM.ring=.001;tr_hit(1.4);inTone(80,50,2.4,'sawtooth',.18);trText('الإمبراطور هجير','ثلاثة أطوار · ثلاث نيران',3.4)}}),
- S(4,{w:[11,31,1.5,20,26,1.2],hero:[8,32,17,28,'r',0],m:{k:1,s:1,h:1,b:1,a:1},on:()=>{EM.endless=1;EM.eSeed=1234;EM.floor=1;EM.trailer=1;emLoad(11);trText('برج لا ينتهي','زعيم كل ٥ طوابق · جمرة لمن ينتصر',1.9);inBell(329.6,.3,2)}}),
+ S(4,{w:[11,31,1.5,20,26,1.2],hero:[8,32,17,28,'r',0],m:{k:1,s:1,h:1,b:1,a:1},on:()=>{EM.endless=1;EM.eSeed=1234;EM.floor=1;EM.trailer=1;emLoad(11);trText('تحدٍّ كل يوم','نفس الطوابق للجميع · تفوّق على أصحابك',1.9);inBell(329.6,.3,2)}}),
  S(2,{v:{dark:1},on:()=>{EM.endless=0;inNoise(1,300,9000,2,.6,'bandpass');inTone(110,1760,1,'sawtooth',.14);$('#trT').className=''}}),
  S(12,{v:{y0:-40,y1:-20,z0:1.5,z1:1.3,c0:1,c1:1,b0:1,b1:1,hero:[W/2-70,238,W/2-40,224]},fl:[.9,'#ffe0a0'],fi:.2,title:{t:'أسطورة الجمر',sub:'جمر الأعماق',at:.8},m:{p:1,a:1,k:2},on:()=>{tr_hit(1.8);inTone(60,30,2.5,'sine',1);inNoise(2.5,2500,500,.6,.3,'bandpass');[220,330,440,660].forEach((f,i)=>inBell(f,.32,4,i*.12))}}),
  S(12,{v:{dark:1},fo:1.4,m:{p:1},on:()=>{inBell(440,.26,3);inBell(660,.2,3.5,.4);const e=$('#trEnd');e.querySelector('img').src=INTRO_IMG.badge;e.classList.add('show');$('#trSk').style.display='none'}})]}
@@ -75,6 +75,6 @@ function trStart(){if(TRL.on||(typeof INTR!=='undefined'&&INTR.on))return;TRL.on
 function trExit(){if(!TRL.on)return;TRL.on=0;HD.cine=null;ST.cin=null;$('#cine').hidden=true;$('#ccap').textContent='';inDroneStop(.8);EM.trailer=0;EM.endless=0;
   document.body.classList.remove('trailer');$('#trl').hidden=true;$('#trEnd').classList.remove('show');$('#trT').className='';stExit(true)}
 addEventListener('keydown',e=>{if(TRL.on&&e.key==='Escape'){e.stopPropagation();e.preventDefault();trExit()}},true);
-(function(){const c=$('#dlShare')||$('#dlBtn')||$('#enBtn')||$('#emCont');if(!c||!c.parentNode)return;const b=document.createElement('button');b.type='button';b.className='mbtn s1';b.id='trBtn';b.textContent='▶ شاهد الإعلان';c.parentNode.insertBefore(b,c.nextSibling);b.addEventListener('click',trStart)})();
+(function(){const c=$('#dlShare')||$('#dlBtn')||$('#emCont');if(!c||!c.parentNode)return;const b=document.createElement('button');b.type='button';b.className='mbtn s1';b.id='trBtn';b.textContent='▶ شاهد الإعلان';c.parentNode.insertBefore(b,c.nextSibling);b.addEventListener('click',trStart)})();
 if(/[?&]trailer/.test(location.search))setTimeout(trStart,700);
 Object.assign(window.__hd||{},{trStart,trExit,TRL});

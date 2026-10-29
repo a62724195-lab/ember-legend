@@ -57,9 +57,7 @@ function hdEndlessTry(fl,att,safe){
 function emEndRun(){const R=EM;if(ST.busy)return;ST.busy=1;saCaught();stFlash(.7,'#ff2a2a');ST.shake=1;
   const b=store.get('ember_endless')||{best:0};
   setTimeout(()=>{$('#fade').classList.add('on');setTimeout(()=>{$('#fade').classList.remove('on');ST.busy=0;showCard('انتهت الرحلة','وصلت الطابق '+(R.floor+1)+' · أفضل رقم: '+Math.max(b.best,R.floor+1),4200,()=>stExit(true))},700)},450)}
-/* ---------- هدف الشاشة + زر القائمة ---------- */
+/* ---------- هدف الشاشة ---------- */
+/* (زر «البرج اللانهائي» أُزيل؛ المولّد يبقى لأن التحدّي اليومي يبنيه) */
 const __eo=emObjective;emObjective=function(){const t=__eo();return EM.endless?`الطابق ${EM.floor+1} · ❤×${Math.max(0,EM.lives)} · `+t:t};
-function enRefresh(){const b=$('#enBtn');if(!b)return;const v=store.get('ember_endless');$('#enInfo').textContent=v&&v.best?'أفضل طابق وصلت له: '+v.best:'طوابق عشوائية بلا نهاية'}
-(function(){const c=$('#emCont');if(!c||!c.parentNode)return;const b=document.createElement('button');b.type='button';b.className='mbtn s1';b.id='enBtn';b.innerHTML='البرج اللانهائي <small id="enInfo"></small>';c.parentNode.insertBefore(b,c.nextSibling);b.addEventListener('click',()=>emStart(true,true));
-  const old=emRefreshTitle;emRefreshTitle=function(){old();enRefresh()};enRefresh()})();
-Object.assign(window.__hd||{},{hdEndless,emEndRun,enRefresh});
+Object.assign(window.__hd||{},{hdEndless,emEndRun});

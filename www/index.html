@@ -5461,7 +5461,7 @@ function inKey(e){if(!INTR.on)return;e.stopPropagation();e.preventDefault();if(e
 /* =====================================================================
    التحديث من داخل اللعبة: يفحص آخر إصدار على GitHub ويعرض زر "حدّث الآن"
    ===================================================================== */
-const APP_VERSION='1.9.0';
+const APP_VERSION='2.0.0';
 const UPD={repo:'a62724195-lab/ember-legend',info:null,busy:0,dismissed:0,checking:0,pct:0,err:''};
 (function(){
 const st=document.createElement('style');st.textContent=`
@@ -5570,12 +5570,10 @@ function hdEndlessTry(fl,att,safe){
 function emEndRun(){const R=EM;if(ST.busy)return;ST.busy=1;saCaught();stFlash(.7,'#ff2a2a');ST.shake=1;
   const b=store.get('ember_endless')||{best:0};
   setTimeout(()=>{$('#fade').classList.add('on');setTimeout(()=>{$('#fade').classList.remove('on');ST.busy=0;showCard('انتهت الرحلة','وصلت الطابق '+(R.floor+1)+' · أفضل رقم: '+Math.max(b.best,R.floor+1),4200,()=>stExit(true))},700)},450)}
-/* ---------- هدف الشاشة + زر القائمة ---------- */
+/* ---------- هدف الشاشة ---------- */
+/* (زر «البرج اللانهائي» أُزيل؛ المولّد يبقى لأن التحدّي اليومي يبنيه) */
 const __eo=emObjective;emObjective=function(){const t=__eo();return EM.endless?`الطابق ${EM.floor+1} · ❤×${Math.max(0,EM.lives)} · `+t:t};
-function enRefresh(){const b=$('#enBtn');if(!b)return;const v=store.get('ember_endless');$('#enInfo').textContent=v&&v.best?'أفضل طابق وصلت له: '+v.best:'طوابق عشوائية بلا نهاية'}
-(function(){const c=$('#emCont');if(!c||!c.parentNode)return;const b=document.createElement('button');b.type='button';b.className='mbtn s1';b.id='enBtn';b.innerHTML='البرج اللانهائي <small id="enInfo"></small>';c.parentNode.insertBefore(b,c.nextSibling);b.addEventListener('click',()=>emStart(true,true));
-  const old=emRefreshTitle;emRefreshTitle=function(){old();enRefresh()};enRefresh()})();
-Object.assign(window.__hd||{},{hdEndless,emEndRun,enRefresh});
+Object.assign(window.__hd||{},{hdEndless,emEndRun});
 /* =====================================================================
    حركات سريعة: اندفاع (Space/Q) + الجامور (F) يُرمى ويرجع
    ===================================================================== */
@@ -5786,14 +5784,10 @@ function dlStreak(){const t=dlToday(),d=store.get('ember_daily')||{};return d.la
 const _dlHe=hdEndless;hdEndless=function(fl){if(EM.daily&&DL.seed)EM.eSeed=DL.seed;return _dlHe.apply(this,arguments)};
 const _dlStart=emStart;emStart=function(){EM.daily=DL.pend?1:0;DL.pend=0;if(EM.daily){DL.seed=dlToday().seed;dlBegin()}
   const r=_dlStart.apply(this,arguments);if(EM.daily)showCard('التحدّي اليومي',dlToday().txt+' · الطابق 1',2400);
-  else if(EM.endless)dlPerks();return r};
-/* لقب وجوائز السلسلة: ٣ أيام = محاولة إضافية · ٧ أيام = جمرة عشوائية عند البداية · ١٤ يوم = الاثنتان + لقب «لهب» (للبرج العادي فقط) */
+  return r};
+/* ألقاب السلسلة: ٣ أيام «شرارة» · ٧ «جمرة» · ١٤ «لهب» (تظهر في الزر والمشاركة) */
 const DL_TITLES=[[14,'لهب'],[7,'جمرة'],[3,'شرارة']];
 function dlTitle(){const s=dlStreak(),t=DL_TITLES.find(x=>s>=x[0]);return t?t[1]:''}
-function dlPerks(){const s=dlStreak(),got=[];
-  if(s>=3){EM.lives=4;got.push('محاولة إضافية')}
-  if(s>=7){const t=['blue','green','violet','gold'][Math.floor(Math.random()*4)];EM.etype=t;got.push(EMB_T[t].n)}
-  if(got.length)setTimeout(()=>toast('مكافأة سلسلتك ('+s+' أيام): '+got.join(' + '),'#ffd27a',true),2600)}
 /* رقم «أفضل طابق» للبرج العادي ما يتأثر بالتحدّي اليومي */
 const _dlLoad=emLoad;emLoad=function(){if(!EM.daily)return _dlLoad.apply(this,arguments);
   const keep=store.get('ember_endless'),r=_dlLoad.apply(this,arguments);keep?store.set('ember_endless',keep):store.del('ember_endless');dlNote(EM.floor+1);return r};
@@ -5812,46 +5806,117 @@ async function dlShare(){const text=dlShareText();
 function dlRefresh(){const b=$('#dlBtn');if(!b)return;const t=dlToday(),d=store.get('ember_daily')||{},s=dlStreak();
   $('#dlInfo').textContent=(d.day===t.n&&d.best?'أفضل طابق اليوم: '+d.best:'نفس الطوابق لكل اللاعبين اليوم')+(s>1?' · 🔥'+s:'')+(dlTitle()?' · '+dlTitle():'');
   const sb=$('#dlShare');if(sb)sb.hidden=!(d.day===t.n&&d.best)}
-(function(){const c=$('#enBtn')||$('#emCont');if(!c||!c.parentNode)return;const b=document.createElement('button');b.type='button';b.className='mbtn s1';b.id='dlBtn';b.innerHTML='التحدّي اليومي <small id="dlInfo"></small>';c.parentNode.insertBefore(b,c.nextSibling);
+(function(){const c=$('#emCont');if(!c||!c.parentNode)return;const b=document.createElement('button');b.type='button';b.className='mbtn s1';b.id='dlBtn';b.innerHTML='التحدّي اليومي <small id="dlInfo"></small>';c.parentNode.insertBefore(b,c.nextSibling);
   b.addEventListener('click',()=>{DL.pend=1;emStart(true,true)});
   const sh=document.createElement('button');sh.type='button';sh.className='mbtn s1';sh.id='dlShare';sh.hidden=true;sh.innerHTML='شارك نتيجتك <small>انسخ نص جاهز للصق</small>';b.parentNode.insertBefore(sh,b.nextSibling);sh.addEventListener('click',dlShare);
   const old=emRefreshTitle;emRefreshTitle=function(){old();dlRefresh()};dlRefresh()})();
-Object.assign(window.__hd||{},{dlShare,dlShareText,dlTitle,dlPerks,DL,dlToday,dlBegin,dlNote,dlStreak,dlRefresh,emDie:w=>emDie(w),emEndRun:()=>emEndRun(),emNext:()=>emNext(),emStartNow:(f,e)=>emStart(f,e)});
+Object.assign(window.__hd||{},{dlShare,dlShareText,dlTitle,DL,dlToday,dlBegin,dlNote,dlStreak,dlRefresh,emDie:w=>emDie(w),emEndRun:()=>emEndRun(),emNext:()=>emNext(),emStartNow:(f,e)=>emStart(f,e)});
 /* =====================================================================
-   أوضاع البرج اللانهائي: عادي · ظلام · أسراب · حياة واحدة
-   تنطبق على البرج العادي فقط (التحدّي اليومي يبقى ثابتاً وعادلاً). لكل وضع رقم قياسي مستقل.
+   إحساس القتال: توقّف لحظي عند الضربة، دفعة كاميرا، موجة صدمة، شرر، صوت أثقل،
+   وأثر للاندفاع، و«نجاة بالاندفاع» (تباطؤ + مكافأة صغيرة). كله طبقة فوق الموجود بدون تغيير القواعد
+   (ما عدا مكافأة النجاة: يرجع لك جمر الاندفاع).
    ===================================================================== */
-const MODES=[{id:'n',n:'عادي',d:'طوابق عشوائية بلا نهاية'},{id:'dark',n:'ظلام',d:'النار تخبو أسرع، لا تبقى واقف'},{id:'swarm',n:'أسراب',d:'ضعف عدد الأعداء'},{id:'one',n:'حياة واحدة',d:'محاولة واحدة فقط'}];
-const MD={cur:store.get('ember_mode')||'n'};if(!MODES.some(m=>m.id===MD.cur))MD.cur='n';
-const mdInfo=id=>MODES.find(m=>m.id===id)||MODES[0];
-const mdBestKey=id=>'ember_endless_'+id;
-/* بداية: نثبّت الوضع ونطبّق أثره على المحاولات */
-const _mdStart=emStart;emStart=function(fresh,endless){EM.mode=(endless&&!DL.pend)?MD.cur:'n';const r=_mdStart.apply(this,arguments);
-  if(EM.mode==='one')EM.lives=1;
-  if(EM.mode!=='n')setTimeout(()=>toast('وضع «'+mdInfo(EM.mode).n+'»: '+mdInfo(EM.mode).d,'#ff9a6a',true),1800);
-  return r};
-/* ظلام: تخبو النار أسرع (ما عدا ساحات الزعماء) */
-const _mdUp=emUpdate;emUpdate=function(dt){_mdUp.apply(this,arguments);const R=EM;
-  if(R.endless&&R.mode==='dark'&&!ST.cin&&!HD.cine&&R.m&&!(R.m.arena||R.m.boss)&&!ST.busy&&R.E>1)R.E=Math.max(1,R.E-.32*dt)};
-/* أسراب: كل عدو معه توأم قريب منه في خانة فاضية */
-const _mdEn=hdEndless;hdEndless=function(fl){const m=_mdEn.apply(this,arguments);
-  if(EM.endless&&EM.mode==='swarm'&&m&&!m.boss&&!m.arena&&m.en){const free=(x,y)=>m.g[Math.floor(y)]&&m.g[Math.floor(y)][Math.floor(x)]==='.';const extra=[];
-    m.en.forEach(e=>{for(const[dx,dy]of[[.9,0],[-.9,0],[0,.9],[0,-.9]])if(free(e.x+dx,e.y+dy)){extra.push({k:e.k,x:e.x+dx,y:e.y+dy,dorm:e.dorm});break}});m.en=m.en.concat(extra)}return m};
-/* رقم قياسي مستقل لكل وضع (ما نلمس رقم «عادي») */
-const _mdLoad=emLoad;emLoad=function(){if(!(EM.endless&&!EM.daily&&EM.mode&&EM.mode!=='n'))return _mdLoad.apply(this,arguments);
-  const keep=store.get('ember_endless'),r=_mdLoad.apply(this,arguments);keep?store.set('ember_endless',keep):store.del('ember_endless');
-  const k=mdBestKey(EM.mode),b=store.get(k)||{best:0};if(EM.floor+1>b.best)store.set(k,{best:EM.floor+1});return r};
-const _mdEnd=emEndRun;emEndRun=function(){if(!(EM.endless&&!EM.daily&&EM.mode&&EM.mode!=='n'))return _mdEnd.apply(this,arguments);const R=EM;if(ST.busy)return;ST.busy=1;saCaught();stFlash(.7,'#ff2a2a');ST.shake=1;
-  setTimeout(()=>{$('#fade').classList.add('on');setTimeout(()=>{$('#fade').classList.remove('on');ST.busy=0;const b=store.get(mdBestKey(R.mode))||{best:0};
-    showCard('انتهت الرحلة · '+mdInfo(R.mode).n,'وصلت الطابق '+(R.floor+1)+' · أفضل رقم بهذا الوضع: '+Math.max(b.best,R.floor+1),4400,()=>stExit(true))},700)},450)};
-const _mdObj=emObjective;emObjective=function(){const t=_mdObj();return EM.endless&&EM.mode&&EM.mode!=='n'?mdInfo(EM.mode).n+' · '+t:t};
-/* زر اختيار الوضع (ينقّل بين الأوضاع) */
-function mdRefresh(){const b=$('#mdBtn');if(!b)return;const m=mdInfo(MD.cur),best=(store.get(MD.cur==='n'?'ember_endless':mdBestKey(MD.cur))||{}).best;
-  $('#mdName').textContent=m.n;$('#mdInfo').textContent=m.d+(best?' · أفضل: '+best:'')}
-(function(){const c=$('#enBtn');if(!c||!c.parentNode)return;const b=document.createElement('button');b.type='button';b.className='mbtn s1';b.id='mdBtn';b.innerHTML='وضع البرج: <b id="mdName"></b> <small id="mdInfo"></small>';c.parentNode.insertBefore(b,c.nextSibling);
-  b.addEventListener('click',()=>{MD.cur=MODES[(MODES.findIndex(m=>m.id===MD.cur)+1)%MODES.length].id;store.set('ember_mode',MD.cur);mdRefresh()});
-  const old=emRefreshTitle;emRefreshTitle=function(){old();mdRefresh()};mdRefresh()})();
-Object.assign(window.__hd||{},{MD,MODES,mdRefresh,emUpdate:(...a)=>emUpdate(...a)});
+const JU={fr:0,slow:0,pcd:0,rings:[],ghosts:[],on:()=>ST.emOn&&state==='story'&&!ST.cin&&!HD.cine&&EM.m};
+const JU_K={ /* fr=توقّف · sh=اهتزاز · r=نصف قطر الموجة · n=شرر · z=دفعة زوم */
+  jam:{fr:.05,sh:.55,r:34,n:10,z:.025,c:'#ffd890',snd:.4},
+  flare:{fr:.07,sh:.7,r:46,n:12,z:.03,c:'#ffe0a0',snd:.55},
+  boss:{fr:.13,sh:1.5,r:78,n:26,z:.07,c:'#ffb060',snd:1},
+  heart:{fr:.2,sh:1.7,r:110,n:34,z:.09,c:'#ff8a40',snd:1.2},
+  perfect:{fr:0,sh:.2,r:40,n:8,z:.04,c:'#9fe8ff',snd:.3}};
+function juImpact(kind,x,y){const K=JU_K[kind],R=EM;if(!K)return;
+  JU.fr=Math.max(JU.fr,K.fr);ST.shake=Math.max(ST.shake||0,K.sh);if(HD.cam)HD.cam.z=(HD.cam.z||1)+K.z;
+  JU.rings.push({x,y,t:0,max:.38,r:K.r,c:K.c});JU.rings.push({x,y,t:0,max:.22,r:K.r*.55,c:'#ffffff'});
+  for(let i=0;i<K.n;i++){const a=Math.random()*6.283,s=rr(1.2,3.6);R.fx.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:0,max:rr(.3,.8)})}
+  if(SA.n){const v=K.snd;saTone(150,40,.22,'sine',.55*v);saNoise(.25,'bandpass',2600,1.4,.3*v,null,700);saTone(880,330,.09,'square',.05*v)}}
+/* حلقة التحديث: توقّف الضربة + التباطؤ + كشف الأحداث */
+const _juU=emUpdate;emUpdate=function(dt){const R=EM;
+  if(!JU.on()||!ST.emOn){return _juU.call(this,dt)}
+  JU.rings=JU.rings.filter(r=>(r.t+=dt)<r.max);JU.ghosts=JU.ghosts.filter(g=>(g.t+=dt)<g.max);if(JU.pcd>0)JU.pcd-=dt;
+  if(JU.fr>0){JU.fr-=dt;return}
+  let sd=dt;if(JU.slow>0){JU.slow-=dt;sd=dt*.35}
+  const J=R.jm,n0=J?Object.keys(J.hit).length:0,B=R.bs,bhp=B?B.hp:0,H=R.hp,hhp=H?H.hp:0;
+  _juU.call(this,sd);
+  if(!R.m)return;
+  if(J&&R.jm===J||J&&!R.jm){if(Object.keys(J.hit).length>n0)juImpact('jam',J.x,J.y)}
+  if(H&&R.hp===H&&H.hp<hhp&&R.m.arena)juImpact('heart',R.m.arena.hx,R.m.arena.hy);
+  /* أثر الاندفاع */
+  if(R.dashT>0)JU.ghosts.push({x:R.x,y:R.y,t:0,max:.28});
+  /* نجاة بالاندفاع: عدو متحرّك لامسك وأنت في لحظة الحصانة */
+  if(R.inv>0&&R.dashT>0&&JU.pcd<=0&&!ST.busy){const e=R.en.find(e=>e.st!=='dorm'&&!(e.stun>0)&&!(e.away>0)&&Math.hypot(e.x-R.x,e.y-R.y)<.95);
+    if(e){JU.pcd=1.4;JU.slow=.45;R.dashCd=0;R.E=Math.min(100,R.E+MV.dashCost+1);juImpact('perfect',R.x,R.y);stFlash(.25,'#9fe8ff');if(SA.n&&saChime)saChime();toast('نجاة!','#9fe8ff',true)}}};
+/* الوهج: توقّف أطول بقدر عدد من أصابهم */
+const _juF=emFlare;emFlare=function(){const R=EM,snap=R.en.map(e=>({e,x:e.x,y:e.y,s:e.stun||0,a:e.away||0}));_juF.apply(this,arguments);
+  if(!(R.cd>=1.0))return;let n=0;
+  for(const o of snap){if(!R.en.includes(o.e)||(o.e.stun||0)>o.s||(o.e.away||0)>o.a){n++;juImpact('flare',o.x,o.y)}}
+  if(n>1)JU.fr=Math.min(.14,JU.fr+.02*n)};
+/* ضرب الزعيم */
+const _juB=hdBossHurt;hdBossHurt=function(B,by){const r=_juB.apply(this,arguments);juImpact('boss',B.x,B.y);return r};
+/* الرسم: موجات الصدمة وأثر الاندفاع (داخل نفس إحداثيات الوهج) */
+const _juG=hdJamGlow;hdJamGlow=function(ox,oy,t){_juG.apply(this,arguments);
+  if(!JU.rings.length&&!JU.ghosts.length)return;ctx.save();ctx.globalCompositeOperation='lighter';
+  for(const g of JU.ghosts){const k=1-g.t/g.max;glowAdd(g.x*HT-ox,g.y*HT-oy-10,14+6*k,'#ffb060',.5*k)}
+  for(const r of JU.rings){const k=r.t/r.max,e=1-(1-k)*(1-k);ctx.globalAlpha=Math.max(0,1-k);ctx.strokeStyle=r.c;ctx.lineWidth=3*(1-k)+1;ctx.beginPath();ctx.arc(r.x*HT-ox,r.y*HT-oy-8,r.r*e,0,7);ctx.stroke();
+    if(k<.35){glowAdd(r.x*HT-ox,r.y*HT-oy-8,r.r*.8*(1-k),r.c,.55*(1-k/.35))}}
+  ctx.restore()};
+/* ضربة الجامور على الجدار + بداية الاندفاع: صوت/غبار أخف */
+const _juD=emDash;emDash=function(){const R=EM,d0=R.dashT||0;_juD.apply(this,arguments);if((R.dashT||0)>d0){for(let i=0;i<6;i++)R.fx.push({x:R.x,y:R.y,vx:-R.dx*rr(.6,1.6)+rr(-.5,.5),vy:-R.dy*rr(.6,1.6)+rr(-.5,.5),life:0,max:rr(.25,.5)});if(HD.cam)HD.cam.z=(HD.cam.z||1)+.012}};
+Object.assign(window.__hd||{},{JU,juImpact});
+/* =====================================================================
+   أصوات القصة أثناء اللعب (وضع القصة فقط، مو التحدّي اليومي)
+   - سالم يهمس من النار ومن الجمرة: تلميحات ملائمة لحقيقته (يعيش في اللهب ثم تنكشف في مرحلة ٦)
+   - الرماديون يهمسون بأصوات أهل القلعة لما يلاحظونك
+   كل جملة تظهر مرة واحدة فقط (تُحفظ)، والهمسات المتكرّرة لها فترة تبريد
+   ===================================================================== */
+const VO={seen:store.get('ember_vo')||{},cd:0,lv:-1,t:0,ek:{},fireLv:{},lastE:100,low:0,rel:0,pz:0,half:{}};
+const voSave=()=>store.set('ember_vo',VO.seen);
+const voOn=()=>ST.emOn&&state==='story'&&!ST.cin&&!HD.cine&&!ST.busy&&EM.m&&!EM.endless&&!EM.daily;
+/* سالم: يظهر نصّه كإشعار ذهبي. id فريد لكل جملة */
+function voSalem(id,txt,force){if(VO.seen[id]||(VO.cd>0&&!force))return false;VO.seen[id]=1;voSave();VO.cd=9;toast('سالم: «'+txt+'»','#ffd9a0',true);if(SA.n&&saChime)saChime();return true}
+/* مراحل القصة: جمل عند أول اقتراب من نار موقدة (سالم لا يظهر إلا عند النيران) */
+const VO_FIRE=[ /* بحسب رقم المرحلة: ٠ البوابة · ١ المكتبة · ٢ الجسور · ٣ المذابح · ٤ قلب الرماد · ٥ الحدائق · ٦ ساحة الهجير · ٧ العرش */
+ ['يا ولدي... أنت حي. كان لي زمن ما شفت أحد يمشي هنا.','قدّامك ممرات الرماد. لا تركض في العراء.'],
+ ['المكتبة... كان الحرف هنا يضيء. ما بقي إلا الدخان.','المرايا تحفظ كل ضوء مرّ عليها. خلّها تحني وهجك.'],
+ ['الجسور رماد جمر قديم... تحمل الخفيف، لا تقعد عليها.','ثلاث منارات على ثلاث جزر. من يشعلها يفتح الباب.'],
+ ['قاعة المذابح... هنا كانوا يقدّمون الضوء للجمر.','أشعل المذابح الثلاثة بنفسك... هالمرة بدون ما تعطيه أحد.'],
+ ['القلب قريب... أحسّه ينبض من تحت الأرض.','لا تخاف النبض. خاف الجوع اللي وراه.'],
+ ['حدائق الأميرات... كنت أسمع الغناء من هنا.','النار تبطئ الكلاب. لا تنسى جمرتك.'],
+ ['ساحة الهجير... ما فيها إلا الصدى.','حارس العرش ما ينطفي، بس وهجك يردّ نارَه عليه.'],
+ ['وصلت لعرش الجمر... كل شي كان ينتظرك.','أنا معك... أقرب مما تتصور.']];
+/* جمرتك تهمس لما تضعف (تلميح مبكر: نبضها فيه إنسان) */
+const VO_LOW=['جمرتك تضعف... دوّر على نار قبل لا تظلم.','لا تخلّيها تنطفي يا ولدي. أنا ما أطلّ إلا بنورها.','أحس بنبضها يبرد... اشرب من العروق، أو ارجع للنار.'];
+/* أول مرة تشلّ كل نوع من الأعداء */
+const VO_EN={hunter:'الصياد الرمادي كان حارس السوق... شلّه بالنور وكمّل، لا تقاتله.',weeper:'هذي الباكية... أم تدوّر على ولدها. ابعد عنها بالوهج، لا تؤذيها.',hound:'كلاب الصيد الملكية... تشمّ الخوف. اركض، والنار تبطئها.',snuffer:'الكاتم يطفّي كل نار... أشعل غيرها قبل لا يخلّص.',guard:'حارس الهجير... قديم ومخلص. الوهج يردّه.'};
+/* همسات الرماديين لما يلاحظونك (من أهل القلعة) */
+const VO_ASH={weeper:['ولدي...؟','وينك يا قلبي...','ضوء... ولدي كان عنده ضوء...'],hunter:['الضوء... أعطنا الضوء...','كنت أخبز... كنت أخبز لهم...','ما أبي أكون كذا...'],hound:['…','(نحيب بعيد)'],snuffer:['ينتهي الدوام... أطفئوا الشموع...','تأخّر الوقت...'],guard:['باسم الهجير...','حراسة... ما نامت عيني...']};
+/* ذخائر سرّية: كل واحدة لها ذكرى */
+const VO_REL=['هذي كانت لأم أحمد... الخيّاطة. خبّت فيها غناء وليدها.','وهذي مفتاح بيت المؤذّن... ما زال فيه صوت الأذان.','هذي لعبة صغيرة... بنت الحداد كانت تحبها.','وهذي... آخر ضحكة في القلعة. حطّها كل أهلها هنا.'];
+const VO_PZ='الصبر يفتح كل قفل يا ولدي. الأرشيفيين فخورين فيك.';
+const VO_HALF={6:'قربت منه... لا توقف، ردّ كل كرة!',7:'التاج بدأ يتشقق... هذا مو وحش، هذا جوع. كمّل.'};
+/* حلقة التحديث */
+const _voU=emUpdate;emUpdate=function(dt){_voU.apply(this,arguments);const R=EM;
+  if(!voOn()){return}
+  VO.t+=dt;if(VO.cd>0)VO.cd-=dt;
+  if(VO.lv!==R.lv){VO.lv=R.lv;VO.low=0;VO.fireT=0}
+  /* ١) أول اقتراب من نار موقدة في هذه المرحلة */
+  if(!VO.fireLv[R.lv]&&VO.cd<=0){const f=R.m.items.find(i=>i.k==='brazier'&&i.lit&&Math.hypot(i.x-R.x,i.y-R.y)<3);
+    if(f){const L=VO_FIRE[Math.min(R.lv,VO_FIRE.length-1)];if(L){VO.fireLv[R.lv]=1;if(!voSalem('f'+R.lv+'a',L[0]))VO.fireLv[R.lv]=0;else setTimeout(()=>{if(voOn()&&!VO.seen['f'+R.lv+'b'])voSalem('f'+R.lv+'b',L[1],true)},3200)}}}
+  /* ٢) جمرتك تضعف */
+  if(R.E<22&&R.E<VO.lastE&&!VO.low&&VO.cd<=0){const i=Object.keys(VO.seen).filter(k=>k.startsWith('low')).length;if(i<VO_LOW.length){VO.low=1;voSalem('low'+i,VO_LOW[i])}}
+  if(R.E>40)VO.low=0;VO.lastE=R.E;
+  /* ٣) أول شلّ لكل نوع + ٤) همسات الرماديين */
+  for(const e of R.en){if(e.st==='dorm')continue;
+    if((e.stun>0||e.away>0)&&VO_EN[e.k]&&!VO.seen['en_'+e.k]&&VO.cd<=0)voSalem('en_'+e.k,VO_EN[e.k]);
+    if(e.st==='hunt'&&!e._vh){e._vh=1;const L=VO_ASH[e.k];if(L&&(VO.ek[e.k]||0)<=VO.t&&Math.hypot(e.x-R.x,e.y-R.y)<9){VO.ek[e.k]=VO.t+30;stWhisper(L[Math.floor(Math.random()*L.length)],1)}}
+    if(e.st!=='hunt')e._vh=0}
+  /* ٥) ذخيرة سرّية جديدة */
+  if(R.relics>VO.rel){const n=R.relics;VO.rel=n;if(n>0&&VO_REL[n-1])setTimeout(()=>voSalem('rel'+n,VO_REL[n-1],true),1800)}if(R.relics<VO.rel)VO.rel=R.relics;
+  /* ٦) أول لغز تحلّه */
+  const pz=Object.keys(R.pzDone||{}).length;if(pz>VO.pz){if(VO.pz===0)setTimeout(()=>voSalem('pz1',VO_PZ,true),1500);VO.pz=pz}
+  /* ٧) نصف صحة الزعيم */
+  const B=R.bs;if(B&&!B.dead&&B.hp<=B.max/2&&VO_HALF[R.lv]&&!VO.half[R.lv]){VO.half[R.lv]=1;voSalem('half'+R.lv,VO_HALF[R.lv],true)}};
+/* ما نكرّر من البداية لو أعاد اللاعب اللعب من الأول */
+const _voS=emStart;emStart=function(fresh,endless){if(fresh&&!endless){VO.fireLv={};VO.half={};VO.rel=0;VO.pz=0;VO.lv=-1}return _voS.apply(this,arguments)};
+Object.assign(window.__hd||{},{VO,voSalem});
 /* =====================================================================
    الإعلان الرسمي (تليرر): يعمل من داخل اللعبة بمحرّكها الحقيقي — زر في القائمة، أو ?trailer
    ===================================================================== */
@@ -5918,7 +5983,7 @@ function trShots(){let G=0;const ring=(x,y)=>{EM.x=x;EM.y=y;EM.ring=.001};
  lvl(1,11,[11,31,1.9,16,28,1.7],[8,32,16,29,'r',0],'','',0,{k:1,s:1,h:2},[.9,'#ffffff']),
  S(6,{w:[20.5,15,1.0,20.5,9.2,1.25],hero:[20.5,19.5,20.5,12.8,'u',0],fl:[.5,'#ff6a30'],m:{k:1,s:1,h:2,b:1,a:1},on:()=>{EM.trailer=1;emLoad(6);EM.bs&&(EM.bs.intro=0);EM.boost=9;EM.x=20.5;EM.y=15;EM.ring=.001;tr_hit(1.1);trText('حارس العرش','ردّ ناره إليه',2.6)}}),
  S(8,{w:[20.5,12,1.0,20.5,6.6,1.25],hero:[20.5,16,20.5,10.5,'u',0],fl:[.8,'#ff3a1a'],m:{k:1,s:1,h:2,b:1,a:1},on:()=>{EM.trailer=1;emLoad(7);EM.bs&&(EM.bs.intro=0);EM.boost=9;EM.x=20.5;EM.y=12.5;EM.ring=.001;tr_hit(1.4);inTone(80,50,2.4,'sawtooth',.18);trText('الإمبراطور هجير','ثلاثة أطوار · ثلاث نيران',3.4)}}),
- S(4,{w:[11,31,1.5,20,26,1.2],hero:[8,32,17,28,'r',0],m:{k:1,s:1,h:1,b:1,a:1},on:()=>{EM.endless=1;EM.eSeed=1234;EM.floor=1;EM.trailer=1;emLoad(11);trText('برج لا ينتهي','زعيم كل ٥ طوابق · جمرة لمن ينتصر',1.9);inBell(329.6,.3,2)}}),
+ S(4,{w:[11,31,1.5,20,26,1.2],hero:[8,32,17,28,'r',0],m:{k:1,s:1,h:1,b:1,a:1},on:()=>{EM.endless=1;EM.eSeed=1234;EM.floor=1;EM.trailer=1;emLoad(11);trText('تحدٍّ كل يوم','نفس الطوابق للجميع · تفوّق على أصحابك',1.9);inBell(329.6,.3,2)}}),
  S(2,{v:{dark:1},on:()=>{EM.endless=0;inNoise(1,300,9000,2,.6,'bandpass');inTone(110,1760,1,'sawtooth',.14);$('#trT').className=''}}),
  S(12,{v:{y0:-40,y1:-20,z0:1.5,z1:1.3,c0:1,c1:1,b0:1,b1:1,hero:[W/2-70,238,W/2-40,224]},fl:[.9,'#ffe0a0'],fi:.2,title:{t:'أسطورة الجمر',sub:'جمر الأعماق',at:.8},m:{p:1,a:1,k:2},on:()=>{tr_hit(1.8);inTone(60,30,2.5,'sine',1);inNoise(2.5,2500,500,.6,.3,'bandpass');[220,330,440,660].forEach((f,i)=>inBell(f,.32,4,i*.12))}}),
  S(12,{v:{dark:1},fo:1.4,m:{p:1},on:()=>{inBell(440,.26,3);inBell(660,.2,3.5,.4);const e=$('#trEnd');e.querySelector('img').src=INTRO_IMG.badge;e.classList.add('show');$('#trSk').style.display='none'}})]}
@@ -5929,7 +5994,7 @@ function trStart(){if(TRL.on||(typeof INTR!=='undefined'&&INTR.on))return;TRL.on
 function trExit(){if(!TRL.on)return;TRL.on=0;HD.cine=null;ST.cin=null;$('#cine').hidden=true;$('#ccap').textContent='';inDroneStop(.8);EM.trailer=0;EM.endless=0;
   document.body.classList.remove('trailer');$('#trl').hidden=true;$('#trEnd').classList.remove('show');$('#trT').className='';stExit(true)}
 addEventListener('keydown',e=>{if(TRL.on&&e.key==='Escape'){e.stopPropagation();e.preventDefault();trExit()}},true);
-(function(){const c=$('#dlShare')||$('#dlBtn')||$('#enBtn')||$('#emCont');if(!c||!c.parentNode)return;const b=document.createElement('button');b.type='button';b.className='mbtn s1';b.id='trBtn';b.textContent='▶ شاهد الإعلان';c.parentNode.insertBefore(b,c.nextSibling);b.addEventListener('click',trStart)})();
+(function(){const c=$('#dlShare')||$('#dlBtn')||$('#emCont');if(!c||!c.parentNode)return;const b=document.createElement('button');b.type='button';b.className='mbtn s1';b.id='trBtn';b.textContent='▶ شاهد الإعلان';c.parentNode.insertBefore(b,c.nextSibling);b.addEventListener('click',trStart)})();
 if(/[?&]trailer/.test(location.search))setTimeout(trStart,700);
 Object.assign(window.__hd||{},{trStart,trExit,TRL});
 })();

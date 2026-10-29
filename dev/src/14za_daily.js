@@ -17,14 +17,10 @@ function dlStreak(){const t=dlToday(),d=store.get('ember_daily')||{};return d.la
 const _dlHe=hdEndless;hdEndless=function(fl){if(EM.daily&&DL.seed)EM.eSeed=DL.seed;return _dlHe.apply(this,arguments)};
 const _dlStart=emStart;emStart=function(){EM.daily=DL.pend?1:0;DL.pend=0;if(EM.daily){DL.seed=dlToday().seed;dlBegin()}
   const r=_dlStart.apply(this,arguments);if(EM.daily)showCard('التحدّي اليومي',dlToday().txt+' · الطابق 1',2400);
-  else if(EM.endless)dlPerks();return r};
-/* لقب وجوائز السلسلة: ٣ أيام = محاولة إضافية · ٧ أيام = جمرة عشوائية عند البداية · ١٤ يوم = الاثنتان + لقب «لهب» (للبرج العادي فقط) */
+  return r};
+/* ألقاب السلسلة: ٣ أيام «شرارة» · ٧ «جمرة» · ١٤ «لهب» (تظهر في الزر والمشاركة) */
 const DL_TITLES=[[14,'لهب'],[7,'جمرة'],[3,'شرارة']];
 function dlTitle(){const s=dlStreak(),t=DL_TITLES.find(x=>s>=x[0]);return t?t[1]:''}
-function dlPerks(){const s=dlStreak(),got=[];
-  if(s>=3){EM.lives=4;got.push('محاولة إضافية')}
-  if(s>=7){const t=['blue','green','violet','gold'][Math.floor(Math.random()*4)];EM.etype=t;got.push(EMB_T[t].n)}
-  if(got.length)setTimeout(()=>toast('مكافأة سلسلتك ('+s+' أيام): '+got.join(' + '),'#ffd27a',true),2600)}
 /* رقم «أفضل طابق» للبرج العادي ما يتأثر بالتحدّي اليومي */
 const _dlLoad=emLoad;emLoad=function(){if(!EM.daily)return _dlLoad.apply(this,arguments);
   const keep=store.get('ember_endless'),r=_dlLoad.apply(this,arguments);keep?store.set('ember_endless',keep):store.del('ember_endless');dlNote(EM.floor+1);return r};
@@ -43,8 +39,8 @@ async function dlShare(){const text=dlShareText();
 function dlRefresh(){const b=$('#dlBtn');if(!b)return;const t=dlToday(),d=store.get('ember_daily')||{},s=dlStreak();
   $('#dlInfo').textContent=(d.day===t.n&&d.best?'أفضل طابق اليوم: '+d.best:'نفس الطوابق لكل اللاعبين اليوم')+(s>1?' · 🔥'+s:'')+(dlTitle()?' · '+dlTitle():'');
   const sb=$('#dlShare');if(sb)sb.hidden=!(d.day===t.n&&d.best)}
-(function(){const c=$('#enBtn')||$('#emCont');if(!c||!c.parentNode)return;const b=document.createElement('button');b.type='button';b.className='mbtn s1';b.id='dlBtn';b.innerHTML='التحدّي اليومي <small id="dlInfo"></small>';c.parentNode.insertBefore(b,c.nextSibling);
+(function(){const c=$('#emCont');if(!c||!c.parentNode)return;const b=document.createElement('button');b.type='button';b.className='mbtn s1';b.id='dlBtn';b.innerHTML='التحدّي اليومي <small id="dlInfo"></small>';c.parentNode.insertBefore(b,c.nextSibling);
   b.addEventListener('click',()=>{DL.pend=1;emStart(true,true)});
   const sh=document.createElement('button');sh.type='button';sh.className='mbtn s1';sh.id='dlShare';sh.hidden=true;sh.innerHTML='شارك نتيجتك <small>انسخ نص جاهز للصق</small>';b.parentNode.insertBefore(sh,b.nextSibling);sh.addEventListener('click',dlShare);
   const old=emRefreshTitle;emRefreshTitle=function(){old();dlRefresh()};dlRefresh()})();
-Object.assign(window.__hd||{},{dlShare,dlShareText,dlTitle,dlPerks,DL,dlToday,dlBegin,dlNote,dlStreak,dlRefresh,emDie:w=>emDie(w),emEndRun:()=>emEndRun(),emNext:()=>emNext(),emStartNow:(f,e)=>emStart(f,e)});
+Object.assign(window.__hd||{},{dlShare,dlShareText,dlTitle,DL,dlToday,dlBegin,dlNote,dlStreak,dlRefresh,emDie:w=>emDie(w),emEndRun:()=>emEndRun(),emNext:()=>emNext(),emStartNow:(f,e)=>emStart(f,e)});
